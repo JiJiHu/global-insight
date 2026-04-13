@@ -1,0 +1,87 @@
+version: '3.8'
+
+services:
+  # PostgreSQL 数据库
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: global-insight-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: finance_insight
+      POSTGRES_USER: jack
+      POSTGRES_PASSWORD: ChangeMe123!
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - global-insight-network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 128M
+    command: >
+      postgres
+      -c shared_buffers=128MB
+      -c effective_cache_size=256MB
+      -c maintenance_work_mem=64MB
+      -c work_mem=4MB
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U jack -d finance_insight"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # FastAPI 后端服务
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: global-insight-backend
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://jack:ChangeMe123!@postgres:5432/finance_insight
+      DASHSCOPE_API_KEY: ${DASHSCOPE_API_KEY}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - global-insight-network
+    volumes:
+      - ./backend:/app
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 128M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Nginx 前端服务
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: global-insight-frontend
+    ports:
+      - "11279:80"
+    depends_on:
+      - backend
+    networks:
+      - global-insight-network
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+    driver: local
+
+networks:
+  global-insight-network:
+    driver: bridge

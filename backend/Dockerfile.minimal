@@ -1,0 +1,44 @@
+# 多阶段构建 - 极致精简
+FROM python:3.11-slim as builder
+
+WORKDIR /app
+
+# 安装构建依赖
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# 复制依赖文件
+COPY requirements-minimal.txt .
+
+# 安装依赖到指定目录
+RUN pip install --no-cache-dir --prefix=/install -r requirements-minimal.txt
+
+# 运行阶段
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# 复制已安装的依赖
+COPY --from=builder /install /usr/local
+
+# 复制应用代码
+COPY api.py .
+COPY db.py .
+COPY config.py .
+COPY fetch_market_data.py .
+
+# 创建非 root 用户
+RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
+USER appuser
+
+# 暴露端口
+EXPOSE 8000
+
+# 健康检查
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')" || exit 1
+
+# 启动命令
+CMD ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -1,0 +1,16 @@
+# Railway 部署 - 完整依赖
+fastapi==0.110.0
+uvicorn==0.27.1
+psycopg2-binary==2.9.9
+pgvector==0.2.5
+sqlalchemy==2.0.25
+pydantic==2.5.3
+python-dotenv==1.0.1
+requests==2.31.0
+aiohttp==3.9.1
+pandas==2.2.1
+numpy==1.26.4
+yfinance==0.2.40
+transformers==4.38.0
+torch==2.2.0
+sentence-transformers==2.7.0

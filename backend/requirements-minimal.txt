@@ -1,0 +1,17 @@
+# 极简依赖 - 仅核心功能
+# 总计 ~50MB
+
+# 数据抓取
+yfinance==0.2.40
+requests==2.32.5
+
+# 数据库
+psycopg2-binary==2.9.9
+pgvector==0.2.5
+
+# API 服务
+fastapi==0.110.0
+uvicorn==0.27.1
+
+# 数据处理（轻量）
+orjson==3.9.15

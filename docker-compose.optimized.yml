@@ -1,0 +1,119 @@
+version: '3.8'
+
+services:
+  # PostgreSQL 数据库 - 优化配置
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: global-insight-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: finance_insight
+      POSTGRES_USER: jack
+      POSTGRES_PASSWORD: ChangeMe123!
+      # PostgreSQL 性能优化参数
+      POSTGRES_SHARED_BUFFERS: 256MB      # 原 128MB → 256MB
+      POSTGRES_EFFECTIVE_CACHE_SIZE: 768MB # 原 256MB → 768MB
+      POSTGRES_MAINTENANCE_WORK_MEM: 128MB # 原 64MB → 128MB
+      POSTGRES_WORK_MEM: 8MB               # 原 4MB → 8MB
+      POSTGRES_WAL_BUFFERS: 16MB
+      POSTGRES_MAX_CONNECTIONS: 200
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./postgres.conf:/etc/postgresql/postgresql.conf:ro
+    networks:
+      - global-insight-network
+    deploy:
+      resources:
+        limits:
+          memory: 1G      # 原 512M → 1G
+          cpus: '2.0'     # 新增 CPU 限制
+        reservations:
+          memory: 256M
+          cpus: '0.5'
+    command: >
+      postgres
+      -c shared_buffers=256MB
+      -c effective_cache_size=768MB
+      -c maintenance_work_mem=128MB
+      -c work_mem=8MB
+      -c wal_buffers=16MB
+      -c max_connections=200
+      -c checkpoint_completion_target=0.9
+      -c random_page_cost=1.1
+      -c effective_io_concurrency=200
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U jack -d finance_insight"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # FastAPI 后端服务 - 优化配置
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: global-insight-backend
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://jack:ChangeMe123!@postgres:5432/finance_insight
+      DASHSCOPE_API_KEY: ${DASHSCOPE_API_KEY}
+      # API 性能优化
+      API_WORKERS: 4
+      API_TIMEOUT: 30
+    volumes:
+      - ./backend:/app
+      - ./logs:/var/log/global-insight
+    networks:
+      - global-insight-network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '1.0'
+        reservations:
+          memory: 128M
+          cpus: '0.25'
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Nginx 前端服务 - 优化配置
+  frontend:
+    image: nginx:alpine
+    container_name: global-insight-frontend
+    ports:
+      - "11279:80"
+    volumes:
+      - ./frontend/index.html:/usr/share/nginx/html/index.html:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx-cache:/var/cache/nginx
+    networks:
+      - global-insight-network
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+          cpus: '0.5'
+        reservations:
+          memory: 32M
+          cpus: '0.1'
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+networks:
+  global-insight-network:
+    driver: bridge
+
+volumes:
+  pgdata:
+  nginx-cache:

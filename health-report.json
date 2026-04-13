@@ -1,0 +1,20 @@
+{
+  "timestamp": "2026-03-08T12:48:02.730738",
+  "services": {
+    "PostgreSQL": "✅",
+    "Backend API": "✅",
+    "Frontend": "✅",
+    "Redis Cache": "✅"
+  },
+  "database": {
+    "status": "❌",
+    "error": "relation \"market_data\" does not exist\nLINE 1: SELECT COUNT(*) FROM market_data\n                             ^\n"
+  },
+  "api": {
+    "健康检查": "✅",
+    "统计数据": "⚠️",
+    "行情数据": "⚠️",
+    "前端页面": "❌"
+  },
+  "system": "检查完成"
+}

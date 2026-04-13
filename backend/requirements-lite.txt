@@ -1,0 +1,19 @@
+# 金融数据抓取
+yfinance==0.2.40
+alpha-vantage==3.0.0
+
+# 数据库
+psycopg2-binary==2.9.9
+pgvector==0.2.5
+
+# API 服务
+fastapi==0.110.0
+uvicorn==0.27.1
+python-dotenv==1.0.1
+
+# 数据处理
+pandas==2.2.1
+numpy==1.26.4
+
+# 向量化（轻量级，不需要 PyTorch）
+# 使用 ONNX Runtime 或后续添加

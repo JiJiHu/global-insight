@@ -1,0 +1,10 @@
+{
+  "build": {
+    "nix": {
+      "pkgs": [
+        "python311",
+        "postgresql"
+      ]
+    }
+  }
+}

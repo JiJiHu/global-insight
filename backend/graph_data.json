@@ -1,0 +1,1220 @@
+{
+  "nodes": [
+    {
+      "id": "stock_AAPL",
+      "name": "AAPL",
+      "type": "stock",
+      "category": "科技",
+      "symbol": "AAPL",
+      "price": 260.48,
+      "change": 0,
+      "market_type": "stock",
+      "value": 30
+    },
+    {
+      "id": "stock_ADA",
+      "name": "ADA",
+      "type": "stock",
+      "category": "未知",
+      "symbol": "ADA",
+      "price": 1.68,
+      "change": -3.89,
+      "market_type": "crypto",
+      "value": 30
+    },
+    {
+      "id": "stock_AMD",
+      "name": "AMD",
+      "type": "stock",
+      "category": "科技",
+      "symbol": "AMD",
+      "price": 245.04,
+      "change": 3.55,
+      "market_type": "stock",
+      "value": 30
+    },
+    {
+      "id": "stock_AMZN",
+      "name": "AMZN",
+      "type": "stock",
+      "category": "消费",
+      "symbol": "AMZN",
+      "price": 238.38,
+      "change": 2.02,
+      "market_type": "stock",
+      "value": 30
+    },
+    {
+      "id": "stock_BRENT",
+      "name": "BRENT",
+      "type": "stock",
+      "category": "未知",
+      "symbol": "BRENT",
+      "price": 545.76,
+      "change": 1.2,
+      "market_type": "oil",
+      "value": 30
+    },
+    {
+      "id": "stock_BTC",
+      "name": "BTC",
+      "type": "stock",
+      "category": "未知",
+      "symbol": "BTC",
+      "price": 470833.0,
+      "change": -0.54,
+      "market_type": "crypto",
+      "value": 30
+    },
+    {
+      "id": "stock_DOGE",
+      "name": "DOGE",
+      "type": "stock",
+      "category": "未知",
+      "symbol": "DOGE",
+      "price": 0.62,
+      "change": -1.94,
+      "market_type": "crypto",
+      "value": 30
+    },
+    {
+      "id": "stock_ETH",
+      "name": "ETH",
+      "type": "stock",
+      "category": "未知",
+      "symbol": "ETH",
+      "price": 14452.34,
+      "change": -0.7,
+      "market_type": "crypto",
+      "value": 30
+    },
+    {
+      "id": "stock_GOOGL",
+      "name": "GOOGL",
+      "type": "stock",
+      "category": "科技",
+      "symbol": "GOOGL",
+      "price": 317.24,
+      "change": -0.39,
+      "market_type": "stock",
+      "value": 30
+    },
+    {
+      "id": "stock_META",
+      "name": "META",
+      "type": "stock",
+      "category": "科技",
+      "symbol": "META",
+      "price": 629.86,
+      "change": 0.23,
+      "market_type": "stock",
+      "value": 30
+    },
+    {
+      "id": "stock_MSFT",
+      "name": "MSFT",
+      "type": "stock",
+      "category": "科技",
+      "symbol": "MSFT",
+      "price": 370.87,
+      "change": -0.59,
+      "market_type": "stock",
+      "value": 30
+    },
+    {
+      "id": "stock_NVDA",
+      "name": "NVDA",
+      "type": "stock",
+      "category": "科技",
+      "symbol": "NVDA",
+      "price": 188.63,
+      "change": 2.57,
+      "market_type": "stock",
+      "value": 30
+    },
+    {
+      "id": "stock_SOL",
+      "name": "SOL",
+      "type": "stock",
+      "category": "未知",
+      "symbol": "SOL",
+      "price": 547.72,
+      "change": -2.7,
+      "market_type": "crypto",
+      "value": 30
+    },
+    {
+      "id": "stock_TSLA",
+      "name": "TSLA",
+      "type": "stock",
+      "category": "消费",
+      "symbol": "TSLA",
+      "price": 348.95,
+      "change": 0.96,
+      "market_type": "stock",
+      "value": 30
+    },
+    {
+      "id": "stock_USDT",
+      "name": "USDT",
+      "type": "stock",
+      "category": "未知",
+      "symbol": "USDT",
+      "price": 6.88,
+      "change": 0.03,
+      "market_type": "crypto",
+      "value": 30
+    },
+    {
+      "id": "stock_WTI",
+      "name": "WTI",
+      "type": "stock",
+      "category": "未知",
+      "symbol": "WTI",
+      "price": 514.8,
+      "change": 0.8,
+      "market_type": "oil",
+      "value": 30
+    },
+    {
+      "id": "stock_XAU",
+      "name": "XAU",
+      "type": "stock",
+      "category": "未知",
+      "symbol": "XAU",
+      "price": 613.44,
+      "change": 0.8,
+      "market_type": "gold",
+      "value": 30
+    },
+    {
+      "id": "industry_科技",
+      "name": "科技行业",
+      "type": "industry",
+      "category": "科技",
+      "stock_count": 6,
+      "value": 50
+    },
+    {
+      "id": "industry_消费",
+      "name": "消费行业",
+      "type": "industry",
+      "category": "消费",
+      "stock_count": 5,
+      "value": 50
+    },
+    {
+      "id": "theme_人工智能",
+      "name": "人工智能",
+      "type": "theme",
+      "category": "人工智能",
+      "related_stocks": 5,
+      "value": 40
+    },
+    {
+      "id": "theme_电动车",
+      "name": "电动车",
+      "type": "theme",
+      "category": "电动车",
+      "related_stocks": 3,
+      "value": 40
+    },
+    {
+      "id": "theme_云计算",
+      "name": "云计算",
+      "type": "theme",
+      "category": "云计算",
+      "related_stocks": 3,
+      "value": 40
+    },
+    {
+      "id": "theme_社交媒体",
+      "name": "社交媒体",
+      "type": "theme",
+      "category": "社交媒体",
+      "related_stocks": 3,
+      "value": 40
+    },
+    {
+      "id": "theme_半导体",
+      "name": "半导体",
+      "type": "theme",
+      "category": "半导体",
+      "related_stocks": 4,
+      "value": 40
+    },
+    {
+      "id": "source_Twitter-FinancialTimes",
+      "name": "Twitter-FinancialTimes",
+      "type": "source",
+      "category": "media",
+      "value": 25
+    },
+    {
+      "id": "source_Twitter-CNBC",
+      "name": "Twitter-CNBC",
+      "type": "source",
+      "category": "media",
+      "value": 25
+    },
+    {
+      "id": "source_Twitter-WSJ",
+      "name": "Twitter-WSJ",
+      "type": "source",
+      "category": "media",
+      "value": 25
+    },
+    {
+      "id": "source_中国新闻网财经",
+      "name": "中国新闻网财经",
+      "type": "source",
+      "category": "media",
+      "value": 25
+    }
+  ],
+  "links": [
+    {
+      "source": "stock_AAPL",
+      "target": "industry_科技",
+      "type": "belongs_to",
+      "label": "属于",
+      "value": 2
+    },
+    {
+      "source": "stock_AMD",
+      "target": "industry_科技",
+      "type": "belongs_to",
+      "label": "属于",
+      "value": 2
+    },
+    {
+      "source": "stock_AMZN",
+      "target": "industry_消费",
+      "type": "belongs_to",
+      "label": "属于",
+      "value": 2
+    },
+    {
+      "source": "stock_GOOGL",
+      "target": "industry_科技",
+      "type": "belongs_to",
+      "label": "属于",
+      "value": 2
+    },
+    {
+      "source": "stock_META",
+      "target": "industry_科技",
+      "type": "belongs_to",
+      "label": "属于",
+      "value": 2
+    },
+    {
+      "source": "stock_MSFT",
+      "target": "industry_科技",
+      "type": "belongs_to",
+      "label": "属于",
+      "value": 2
+    },
+    {
+      "source": "stock_NVDA",
+      "target": "industry_科技",
+      "type": "belongs_to",
+      "label": "属于",
+      "value": 2
+    },
+    {
+      "source": "stock_TSLA",
+      "target": "industry_消费",
+      "type": "belongs_to",
+      "label": "属于",
+      "value": 2
+    },
+    {
+      "source": "stock_AAPL",
+      "target": "stock_MSFT",
+      "type": "competes_with",
+      "label": "竞争",
+      "value": 3,
+      "lineStyle": {
+        "color": "#ef4444",
+        "width": 2,
+        "type": "dashed"
+      }
+    },
+    {
+      "source": "stock_AAPL",
+      "target": "stock_GOOGL",
+      "type": "competes_with",
+      "label": "竞争",
+      "value": 3,
+      "lineStyle": {
+        "color": "#ef4444",
+        "width": 2,
+        "type": "dashed"
+      }
+    },
+    {
+      "source": "stock_AAPL",
+      "target": "stock_AMZN",
+      "type": "competes_with",
+      "label": "竞争",
+      "value": 3,
+      "lineStyle": {
+        "color": "#ef4444",
+        "width": 2,
+        "type": "dashed"
+      }
+    },
+    {
+      "source": "stock_MSFT",
+      "target": "stock_GOOGL",
+      "type": "competes_with",
+      "label": "竞争",
+      "value": 3,
+      "lineStyle": {
+        "color": "#ef4444",
+        "width": 2,
+        "type": "dashed"
+      }
+    },
+    {
+      "source": "stock_MSFT",
+      "target": "stock_AMZN",
+      "type": "competes_with",
+      "label": "竞争",
+      "value": 3,
+      "lineStyle": {
+        "color": "#ef4444",
+        "width": 2,
+        "type": "dashed"
+      }
+    },
+    {
+      "source": "stock_GOOGL",
+      "target": "stock_META",
+      "type": "competes_with",
+      "label": "竞争",
+      "value": 3,
+      "lineStyle": {
+        "color": "#ef4444",
+        "width": 2,
+        "type": "dashed"
+      }
+    },
+    {
+      "source": "stock_AMZN",
+      "target": "stock_GOOGL",
+      "type": "competes_with",
+      "label": "竞争",
+      "value": 3,
+      "lineStyle": {
+        "color": "#ef4444",
+        "width": 2,
+        "type": "dashed"
+      }
+    },
+    {
+      "source": "stock_NVDA",
+      "target": "stock_AMD",
+      "type": "competes_with",
+      "label": "竞争",
+      "value": 3,
+      "lineStyle": {
+        "color": "#ef4444",
+        "width": 2,
+        "type": "dashed"
+      }
+    },
+    {
+      "source": "stock_NVDA",
+      "target": "theme_人工智能",
+      "type": "related_theme",
+      "label": "相关",
+      "value": 2
+    },
+    {
+      "source": "stock_MSFT",
+      "target": "theme_人工智能",
+      "type": "related_theme",
+      "label": "相关",
+      "value": 2
+    },
+    {
+      "source": "stock_GOOGL",
+      "target": "theme_人工智能",
+      "type": "related_theme",
+      "label": "相关",
+      "value": 2
+    },
+    {
+      "source": "stock_META",
+      "target": "theme_人工智能",
+      "type": "related_theme",
+      "label": "相关",
+      "value": 2
+    },
+    {
+      "source": "stock_AMD",
+      "target": "theme_人工智能",
+      "type": "related_theme",
+      "label": "相关",
+      "value": 2
+    },
+    {
+      "source": "stock_TSLA",
+      "target": "theme_电动车",
+      "type": "related_theme",
+      "label": "相关",
+      "value": 2
+    },
+    {
+      "source": "stock_AMZN",
+      "target": "theme_云计算",
+      "type": "related_theme",
+      "label": "相关",
+      "value": 2
+    },
+    {
+      "source": "stock_MSFT",
+      "target": "theme_云计算",
+      "type": "related_theme",
+      "label": "相关",
+      "value": 2
+    },
+    {
+      "source": "stock_GOOGL",
+      "target": "theme_云计算",
+      "type": "related_theme",
+      "label": "相关",
+      "value": 2
+    },
+    {
+      "source": "stock_META",
+      "target": "theme_社交媒体",
+      "type": "related_theme",
+      "label": "相关",
+      "value": 2
+    },
+    {
+      "source": "stock_GOOGL",
+      "target": "theme_社交媒体",
+      "type": "related_theme",
+      "label": "相关",
+      "value": 2
+    },
+    {
+      "source": "stock_NVDA",
+      "target": "theme_半导体",
+      "type": "related_theme",
+      "label": "相关",
+      "value": 2
+    },
+    {
+      "source": "stock_AMD",
+      "target": "theme_半导体",
+      "type": "related_theme",
+      "label": "相关",
+      "value": 2
+    },
+    {
+      "source": "news_3436",
+      "target": "stock_AMD",
+      "type": "mentions",
+      "label": "提及",
+      "value": 1
+    },
+    {
+      "source": "news_3436",
+      "target": "source_Twitter-WSJ",
+      "type": "from_source",
+      "label": "来自",
+      "value": 1
+    },
+    {
+      "source": "news_3435",
+      "target": "stock_ADA",
+      "type": "mentions",
+      "label": "提及",
+      "value": 1
+    },
+    {
+      "source": "news_3435",
+      "target": "source_Twitter-WSJ",
+      "type": "from_source",
+      "label": "来自",
+      "value": 1
+    },
+    {
+      "source": "news_3434",
+      "target": "stock_AAPL",
+      "type": "mentions",
+      "label": "提及",
+      "value": 1
+    },
+    {
+      "source": "news_3434",
+      "target": "source_Twitter-WSJ",
+      "type": "from_source",
+      "label": "来自",
+      "value": 1
+    },
+    {
+      "source": "news_3433",
+      "target": "stock_XAU",
+      "type": "mentions",
+      "label": "提及",
+      "value": 1
+    },
+    {
+      "source": "news_3433",
+      "target": "source_Twitter-WSJ",
+      "type": "from_source",
+      "label": "来自",
+      "value": 1
+    },
+    {
+      "source": "news_3432",
+      "target": "stock_WTI",
+      "type": "mentions",
+      "label": "提及",
+      "value": 1
+    },
+    {
+      "source": "news_3432",
+      "target": "source_Twitter-WSJ",
+      "type": "from_source",
+      "label": "来自",
+      "value": 1
+    },
+    {
+      "source": "news_3431",
+      "target": "stock_USDT",
+      "type": "mentions",
+      "label": "提及",
+      "value": 1
+    },
+    {
+      "source": "news_3431",
+      "target": "source_Twitter-WSJ",
+      "type": "from_source",
+      "label": "来自",
+      "value": 1
+    },
+    {
+      "source": "news_3430",
+      "target": "stock_TSLA",
+      "type": "mentions",
+      "label": "提及",
+      "value": 1
+    },
+    {
+      "source": "news_3430",
+      "target": "source_Twitter-WSJ",
+      "type": "from_source",
+      "label": "来自",
+      "value": 1
+    },
+    {
+      "source": "news_3429",
+      "target": "stock_SOL",
+      "type": "mentions",
+      "label": "提及",
+      "value": 1
+    },
+    {
+      "source": "news_3429",
+      "target": "source_Twitter-WSJ",
+      "type": "from_source",
+      "label": "来自",
+      "value": 1
+    },
+    {
+      "source": "news_3428",
+      "target": "stock_NVDA",
+      "type": "mentions",
+      "label": "提及",
+      "value": 1
+    },
+    {
+      "source": "news_3428",
+      "target": "source_Twitter-WSJ",
+      "type": "from_source",
+      "label": "来自",
+      "value": 1
+    },
+    {
+      "source": "news_3427",
+      "target": "stock_MSFT",
+      "type": "mentions",
+      "label": "提及",
+      "value": 1
+    },
+    {
+      "source": "news_3427",
+      "target": "source_Twitter-CNBC",
+      "type": "from_source",
+      "label": "来自",
+      "value": 1
+    },
+    {
+      "source": "news_3426",
+      "target": "stock_META",
+      "type": "mentions",
+      "label": "提及",
+      "value": 1
+    },
+    {
+      "source": "news_3426",
+      "target": "source_Twitter-CNBC",
+      "type": "from_source",
+      "label": "来自",
+      "value": 1
+    },
+    {
+      "source": "news_3425",
+      "target": "stock_GOOGL",
+      "type": "mentions",
+      "label": "提及",
+      "value": 1
+    },
+    {
+      "source": "news_3425",
+      "target": "source_Twitter-CNBC",
+      "type": "from_source",
+      "label": "来自",
+      "value": 1
+    },
+    {
+      "source": "news_3424",
+      "target": "stock_ETH",
+      "type": "mentions",
+      "label": "提及",
+      "value": 1
+    },
+    {
+      "source": "news_3424",
+      "target": "source_Twitter-CNBC",
+      "type": "from_source",
+      "label": "来自",
+      "value": 1
+    },
+    {
+      "source": "news_3413",
+      "target": "stock_TSLA",
+      "type": "mentions",
+      "label": "提及",
+      "value": 1
+    },
+    {
+      "source": "news_3413",
+      "target": "source_中国新闻网财经",
+      "type": "from_source",
+      "label": "来自",
+      "value": 1
+    },
+    {
+      "source": "news_3414",
+      "target": "stock_USDT",
+      "type": "mentions",
+      "label": "提及",
+      "value": 1
+    },
+    {
+      "source": "news_3414",
+      "target": "source_中国新闻网财经",
+      "type": "from_source",
+      "label": "来自",
+      "value": 1
+    },
+    {
+      "source": "news_3415",
+      "target": "stock_WTI",
+      "type": "mentions",
+      "label": "提及",
+      "value": 1
+    },
+    {
+      "source": "news_3415",
+      "target": "source_中国新闻网财经",
+      "type": "from_source",
+      "label": "来自",
+      "value": 1
+    },
+    {
+      "source": "news_3416",
+      "target": "stock_XAU",
+      "type": "mentions",
+      "label": "提及",
+      "value": 1
+    },
+    {
+      "source": "news_3416",
+      "target": "source_中国新闻网财经",
+      "type": "from_source",
+      "label": "来自",
+      "value": 1
+    },
+    {
+      "source": "news_3417",
+      "target": "stock_AAPL",
+      "type": "mentions",
+      "label": "提及",
+      "value": 1
+    },
+    {
+      "source": "news_3417",
+      "target": "source_中国新闻网财经",
+      "type": "from_source",
+      "label": "来自",
+      "value": 1
+    },
+    {
+      "source": "news_3418",
+      "target": "stock_ADA",
+      "type": "mentions",
+      "label": "提及",
+      "value": 1
+    },
+    {
+      "source": "news_3418",
+      "target": "source_中国新闻网财经",
+      "type": "from_source",
+      "label": "来自",
+      "value": 1
+    },
+    {
+      "source": "news_3419",
+      "target": "stock_AMD",
+      "type": "mentions",
+      "label": "提及",
+      "value": 1
+    },
+    {
+      "source": "news_3419",
+      "target": "source_中国新闻网财经",
+      "type": "from_source",
+      "label": "来自",
+      "value": 1
+    },
+    {
+      "source": "news_3420",
+      "target": "stock_AMZN",
+      "type": "mentions",
+      "label": "提及",
+      "value": 1
+    },
+    {
+      "source": "news_3420",
+      "target": "source_中国新闻网财经",
+      "type": "from_source",
+      "label": "来自",
+      "value": 1
+    },
+    {
+      "source": "news_3421",
+      "target": "stock_BRENT",
+      "type": "mentions",
+      "label": "提及",
+      "value": 1
+    },
+    {
+      "source": "news_3421",
+      "target": "source_中国新闻网财经",
+      "type": "from_source",
+      "label": "来自",
+      "value": 1
+    },
+    {
+      "source": "news_3422",
+      "target": "stock_BTC",
+      "type": "mentions",
+      "label": "提及",
+      "value": 1
+    },
+    {
+      "source": "news_3422",
+      "target": "source_中国新闻网财经",
+      "type": "from_source",
+      "label": "来自",
+      "value": 1
+    },
+    {
+      "source": "news_3412",
+      "target": "stock_SOL",
+      "type": "mentions",
+      "label": "提及",
+      "value": 1
+    },
+    {
+      "source": "news_3412",
+      "target": "source_Twitter-FinancialTimes",
+      "type": "from_source",
+      "label": "来自",
+      "value": 1
+    },
+    {
+      "source": "news_3411",
+      "target": "stock_NVDA",
+      "type": "mentions",
+      "label": "提及",
+      "value": 1
+    },
+    {
+      "source": "news_3411",
+      "target": "source_Twitter-FinancialTimes",
+      "type": "from_source",
+      "label": "来自",
+      "value": 1
+    },
+    {
+      "source": "news_3410",
+      "target": "stock_MSFT",
+      "type": "mentions",
+      "label": "提及",
+      "value": 1
+    },
+    {
+      "source": "news_3410",
+      "target": "source_Twitter-FinancialTimes",
+      "type": "from_source",
+      "label": "来自",
+      "value": 1
+    },
+    {
+      "source": "news_3409",
+      "target": "stock_META",
+      "type": "mentions",
+      "label": "提及",
+      "value": 1
+    },
+    {
+      "source": "news_3409",
+      "target": "source_Twitter-FinancialTimes",
+      "type": "from_source",
+      "label": "来自",
+      "value": 1
+    },
+    {
+      "source": "news_3408",
+      "target": "stock_GOOGL",
+      "type": "mentions",
+      "label": "提及",
+      "value": 1
+    },
+    {
+      "source": "news_3408",
+      "target": "source_Twitter-FinancialTimes",
+      "type": "from_source",
+      "label": "来自",
+      "value": 1
+    },
+    {
+      "source": "news_3407",
+      "target": "stock_ETH",
+      "type": "mentions",
+      "label": "提及",
+      "value": 1
+    },
+    {
+      "source": "news_3407",
+      "target": "source_Twitter-FinancialTimes",
+      "type": "from_source",
+      "label": "来自",
+      "value": 1
+    },
+    {
+      "source": "news_3406",
+      "target": "stock_DOGE",
+      "type": "mentions",
+      "label": "提及",
+      "value": 1
+    },
+    {
+      "source": "news_3406",
+      "target": "source_Twitter-WSJ",
+      "type": "from_source",
+      "label": "来自",
+      "value": 1
+    },
+    {
+      "source": "news_3405",
+      "target": "stock_BTC",
+      "type": "mentions",
+      "label": "提及",
+      "value": 1
+    },
+    {
+      "source": "news_3405",
+      "target": "source_Twitter-WSJ",
+      "type": "from_source",
+      "label": "来自",
+      "value": 1
+    },
+    {
+      "source": "news_3404",
+      "target": "stock_BRENT",
+      "type": "mentions",
+      "label": "提及",
+      "value": 1
+    },
+    {
+      "source": "news_3404",
+      "target": "source_Twitter-WSJ",
+      "type": "from_source",
+      "label": "来自",
+      "value": 1
+    },
+    {
+      "source": "news_3403",
+      "target": "stock_AMZN",
+      "type": "mentions",
+      "label": "提及",
+      "value": 1
+    },
+    {
+      "source": "news_3403",
+      "target": "source_Twitter-WSJ",
+      "type": "from_source",
+      "label": "来自",
+      "value": 1
+    },
+    {
+      "source": "news_3402",
+      "target": "stock_AMD",
+      "type": "mentions",
+      "label": "提及",
+      "value": 1
+    },
+    {
+      "source": "news_3402",
+      "target": "source_Twitter-WSJ",
+      "type": "from_source",
+      "label": "来自",
+      "value": 1
+    },
+    {
+      "source": "news_3401",
+      "target": "stock_ADA",
+      "type": "mentions",
+      "label": "提及",
+      "value": 1
+    },
+    {
+      "source": "news_3401",
+      "target": "source_Twitter-WSJ",
+      "type": "from_source",
+      "label": "来自",
+      "value": 1
+    },
+    {
+      "source": "news_3400",
+      "target": "stock_AAPL",
+      "type": "mentions",
+      "label": "提及",
+      "value": 1
+    },
+    {
+      "source": "news_3400",
+      "target": "source_Twitter-WSJ",
+      "type": "from_source",
+      "label": "来自",
+      "value": 1
+    },
+    {
+      "source": "news_3399",
+      "target": "stock_XAU",
+      "type": "mentions",
+      "label": "提及",
+      "value": 1
+    },
+    {
+      "source": "news_3399",
+      "target": "source_Twitter-CNBC",
+      "type": "from_source",
+      "label": "来自",
+      "value": 1
+    },
+    {
+      "source": "news_3398",
+      "target": "stock_WTI",
+      "type": "mentions",
+      "label": "提及",
+      "value": 1
+    },
+    {
+      "source": "news_3398",
+      "target": "source_Twitter-CNBC",
+      "type": "from_source",
+      "label": "来自",
+      "value": 1
+    },
+    {
+      "source": "news_3397",
+      "target": "stock_USDT",
+      "type": "mentions",
+      "label": "提及",
+      "value": 1
+    },
+    {
+      "source": "news_3397",
+      "target": "source_Twitter-CNBC",
+      "type": "from_source",
+      "label": "来自",
+      "value": 1
+    },
+    {
+      "source": "news_3396",
+      "target": "stock_TSLA",
+      "type": "mentions",
+      "label": "提及",
+      "value": 1
+    },
+    {
+      "source": "news_3396",
+      "target": "source_Twitter-CNBC",
+      "type": "from_source",
+      "label": "来自",
+      "value": 1
+    },
+    {
+      "source": "news_3395",
+      "target": "stock_SOL",
+      "type": "mentions",
+      "label": "提及",
+      "value": 1
+    },
+    {
+      "source": "news_3395",
+      "target": "source_Twitter-CNBC",
+      "type": "from_source",
+      "label": "来自",
+      "value": 1
+    },
+    {
+      "source": "news_3394",
+      "target": "stock_NVDA",
+      "type": "mentions",
+      "label": "提及",
+      "value": 1
+    },
+    {
+      "source": "news_3394",
+      "target": "source_Twitter-CNBC",
+      "type": "from_source",
+      "label": "来自",
+      "value": 1
+    },
+    {
+      "source": "news_3393",
+      "target": "stock_MSFT",
+      "type": "mentions",
+      "label": "提及",
+      "value": 1
+    },
+    {
+      "source": "news_3393",
+      "target": "source_Twitter-CNBC",
+      "type": "from_source",
+      "label": "来自",
+      "value": 1
+    },
+    {
+      "source": "news_3392",
+      "target": "stock_META",
+      "type": "mentions",
+      "label": "提及",
+      "value": 1
+    },
+    {
+      "source": "news_3392",
+      "target": "source_Twitter-CNBC",
+      "type": "from_source",
+      "label": "来自",
+      "value": 1
+    },
+    {
+      "source": "news_3391",
+      "target": "stock_GOOGL",
+      "type": "mentions",
+      "label": "提及",
+      "value": 1
+    },
+    {
+      "source": "news_3391",
+      "target": "source_Twitter-CNBC",
+      "type": "from_source",
+      "label": "来自",
+      "value": 1
+    },
+    {
+      "source": "news_3423",
+      "target": "stock_DOGE",
+      "type": "mentions",
+      "label": "提及",
+      "value": 1
+    },
+    {
+      "source": "news_3423",
+      "target": "source_中国新闻网财经",
+      "type": "from_source",
+      "label": "来自",
+      "value": 1
+    },
+    {
+      "source": "news_3371",
+      "target": "stock_BTC",
+      "type": "mentions",
+      "label": "提及",
+      "value": 1
+    },
+    {
+      "source": "news_3371",
+      "target": "source_中国新闻网财经",
+      "type": "from_source",
+      "label": "来自",
+      "value": 1
+    },
+    {
+      "source": "news_3372",
+      "target": "stock_DOGE",
+      "type": "mentions",
+      "label": "提及",
+      "value": 1
+    },
+    {
+      "source": "news_3372",
+      "target": "source_中国新闻网财经",
+      "type": "from_source",
+      "label": "来自",
+      "value": 1
+    },
+    {
+      "source": "news_3373",
+      "target": "stock_ETH",
+      "type": "mentions",
+      "label": "提及",
+      "value": 1
+    },
+    {
+      "source": "news_3373",
+      "target": "source_中国新闻网财经",
+      "type": "from_source",
+      "label": "来自",
+      "value": 1
+    },
+    {
+      "source": "news_3374",
+      "target": "stock_GOOGL",
+      "type": "mentions",
+      "label": "提及",
+      "value": 1
+    },
+    {
+      "source": "news_3374",
+      "target": "source_中国新闻网财经",
+      "type": "from_source",
+      "label": "来自",
+      "value": 1
+    }
+  ]
+}

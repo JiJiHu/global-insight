@@ -1,0 +1,54 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+venv_data/
+ENV/
+env/
+.venv
+
+# 数据库备份
+*.sql
+backup_*.sql
+backup_*.sql.gz
+
+# 子模块
+frontend
+
+# 环境配置
+.env
+.env.local
+.env.production
+.env.*.local
+
+# Vercel
+.vercel
+
+# 日志
+*.log
+logs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 临时文件
+*.tmp
+*.temp
+*.bak
+
+# 测试
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Node
+node_modules/
+.npm
+.env*.local
