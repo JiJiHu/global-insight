@@ -2,7 +2,7 @@
 nixPkgs = ["python311"]
 
 [phases.install]
-cmds = ["python -m venv /opt/venv", ". /opt/venv/bin/activate", "cd /app && pip install -r backend/requirements.txt"]
+cmds = ["python -m venv /opt/venv", ". /opt/venv/bin/activate", "pip install fastapi uvicorn psycopg2-binary pgvector sqlalchemy pydantic python-dotenv requests aiohttp httpx dashscope yfinance"]
 
 [start]
-cmd = ". /opt/venv/bin/activate && cd /app && python backend/cron_tasks.py fetch-market"
+cmd = ". /opt/venv/bin/activate && python backend/cron_tasks.py fetch-market"
