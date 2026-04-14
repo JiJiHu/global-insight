@@ -1,10 +1,11 @@
-{
-  "build": {
-    "nix": {
-      "pkgs": [
-        "python311",
-        "postgresql"
-      ]
-    }
-  }
-}
+[phases.setup]
+nixPkgs = ["python311", "postgresql"]
+
+[phases.install]
+cmds = ["pip install -r backend/requirements.txt"]
+
+[phases.build]
+cmds = ["echo 'Building backend...'"]
+
+[start]
+cmd = "python backend/cron_tasks.py fetch-market"
