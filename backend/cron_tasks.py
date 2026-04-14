@@ -51,7 +51,7 @@ def fetch_market_data():
             try:
                 response = httpx.get(f"https://finnhub.io/api/v1/quote", params={
                     "symbol": symbol,
-                    "token": os.getenv("FINNHUB_API_KEY", "demo")
+                    "token": "d6l40k1r01qptf3ons10d6l40k1r01qptf3ons1g"
                 })
                 if response.status_code == 200:
                     data = response.json()
