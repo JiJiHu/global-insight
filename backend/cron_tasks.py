@@ -30,7 +30,7 @@ class MarketData(Base):
     price = Column(Float)
     change_percent = Column(Float)
     volume = Column(Float, default=0.0)
-    timestamp = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    timestamp = Column(DateTime, default=lambda: datetime.now(BEIJING_TZ))
     type = Column(String(20))  # stock, crypto, gold, oil
     
     def __repr__(self):
@@ -42,7 +42,7 @@ Session = sessionmaker(bind=engine)
 
 def fetch_market_data():
     """抓取市场数据并写入数据库"""
-    print(f"[{datetime.now(timezone.utc)}] 开始抓取市场数据...")
+    print(f"[{datetime.now(BEIJING_TZ)}] 开始抓取市场数据...")
     
     session = Session()
     count = 0
