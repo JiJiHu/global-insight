@@ -1,11 +1,8 @@
-# Railway Cron Service nixpacks 配置
-
 [phases.setup]
 nixPkgs = ["python311"]
 
 [phases.install]
-cmds = ["pip install -r requirements.txt"]
+cmds = ["python -m pip install -r requirements.txt"]
 
 [start]
-# 默认启动命令（用于 global-insight 主服务）
 cmd = "cd backend && uvicorn api:app --host 0.0.0.0 --port $PORT"
