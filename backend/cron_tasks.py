@@ -26,7 +26,7 @@ class MarketData(Base):
     symbol = Column(String(50), index=True)
     price = Column(Float)
     change_percent = Column(Float)
-    volume = Column(Integer, default=0)
+    volume = Column(Float, default=0.0)
     timestamp = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     type = Column(String(20))  # stock, crypto, gold, oil
     
