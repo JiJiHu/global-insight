@@ -5,7 +5,10 @@ Railway Cron 定时任务 - 抓取市场数据并写入数据库
 import os
 import sys
 import httpx
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
+
+# 北京时间 (UTC+8)
+BEIJING_TZ = timezone(timedelta(hours=8))
 from sqlalchemy import create_engine, Column, String, Float, Integer, DateTime, Text
 from sqlalchemy.orm import sessionmaker, declarative_base
 
@@ -61,6 +64,7 @@ def fetch_market_data():
                             price=data['c'],
                             change_percent=data['dp'],
                             volume=data.get('v', 0),
+                            timestamp=datetime.now(BEIJING_TZ),
                             type='stock'
                         )
                         session.add(market)
@@ -96,6 +100,7 @@ def fetch_market_data():
                     price=info['usd'],
                     change_percent=info.get('usd_24h_change', 0),
                     volume=info.get('usd_24h_vol', 0),
+                    timestamp=datetime.now(BEIJING_TZ),
                     type='crypto'
                 )
                 session.add(market)
