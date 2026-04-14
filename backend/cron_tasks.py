@@ -112,7 +112,7 @@ def fetch_market_data():
     # 提交事务
     try:
         session.commit()
-        print(f"[{datetime.now(timezone.utc)}] 市场数据抓取完成，成功写入 {count} 条记录")
+        print(f"[{datetime.now(BEIJING_TZ)}] 市场数据抓取完成，成功写入 {count} 条记录")
     except Exception as e:
         session.rollback()
         print(f"  数据库写入失败：{e}")
