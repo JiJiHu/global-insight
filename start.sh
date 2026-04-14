@@ -10,6 +10,8 @@ echo "========================="
 if [ "$RAILWAY_SERVICE_ID" = "8a4bf064-947e-4d01-aa80-6ae20b7166e9" ]; then
     echo "Starting as Cron service (efficient-creativity)..."
     . /opt/venv/bin/activate
+    echo "Creating database tables if not exist..."
+    python backend/create_tables.py
     python backend/cron_tasks.py fetch-market
 else
     echo "Starting as Web service..."
