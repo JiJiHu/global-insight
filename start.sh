@@ -2,7 +2,7 @@
 set -e
 
 echo "=== Global Insight Startup ==="
-echo "Service Type: $SERVICE_TYPE (default: cron)"
+echo "Service Type: ${SERVICE_TYPE:-web} (default: web)"
 
 # 激活虚拟环境
 if [ -f "/opt/venv/bin/activate" ]; then
@@ -16,11 +16,11 @@ fi
 echo "📋 创建数据库表..."
 python backend/create_tables.py
 
-# 执行任务
-if [ "$SERVICE_TYPE" = "web" ]; then
-    echo "🚀 启动 Web 服务..."
-    exec uvicorn backend.api:app --host 0.0.0.0 --port $PORT
-else
+# 执行任务（默认 web 模式）
+if [ "${SERVICE_TYPE}" = "cron" ]; then
     echo "🕐 执行 Cron 任务..."
     python backend/cron_tasks.py all
+else
+    echo "🚀 启动 Web 服务..."
+    exec uvicorn backend.api:app --host 0.0.0.0 --port ${PORT:-8000}
 fi
