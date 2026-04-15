@@ -11,26 +11,134 @@ from db import get_db_connection
 BEIJING_TZ = timezone(timedelta(hours=8))
 
 def fetch_news():
-    """抓取新闻并写入数据库（使用原生 SQL）"""
-    print(f"[{datetime.now(BEIJING_TZ)}] 开始抓取新闻...")
+    """抓取新闻并写入数据库 - 多源版本"""
+    print(f"[{datetime.now(BEIJING_TZ)}] 开始抓取新闻 (多源)...")
     
+    total_saved = 0
+    
+    # 1. Finnhub 新闻 API
     try:
-        # 使用 Finnhub 新闻 API
         response = requests.get("https://finnhub.io/api/v1/news", params={
             "category": "general",
             "token": "d6l40k1r01qptf3ons10d6l40k1r01qptf3ons1g"
-        }, timeout=10)
+        }, timeout=15)
         
-        if response.status_code != 200:
-            print(f" ❌ 新闻 API 请求失败：{response.status_code}")
-            return 0
+        if response.status_code == 200:
+            data = response.json()
+            if isinstance(data, list):
+                print(f" ✅ Finnhub 获取到 {len(data)} 条新闻")
+                saved = save_news_batch(data, "Finnhub")
+                total_saved += saved
+                print(f"    保存了 {saved} 条 Finnhub 新闻")
+    except Exception as e:
+        print(f" ❌ Finnhub 抓取失败：{e}")
+    
+    # 2. 尝试从其他来源抓取
+    # 调用 fetch_news_sources.py 如果可用
+    try:
+        from fetch_news_sources import fetch_all_sources
+        sources_saved = fetch_all_sources()
+        total_saved += sources_saved
+        print(f" ✅ 其他来源保存了 {sources_saved} 条新闻")
+    except ImportError as e:
+        print(f" ⚠️ fetch_news_sources 模块不可用：{e}")
+    except Exception as e:
+        print(f" ⚠️ fetch_news_sources 执行失败：{e}")
+    
+    print(f"\n📊 新闻抓取完成！共保存 {total_saved} 条新闻")
+    return total_saved
+
+
+def save_news_batch(data, default_source="Finnhub"):
+    """批量保存新闻到数据库"""
+    saved = 0
+    skipped = 0
+    
+    with get_db_connection() as conn:
+        cur = conn.cursor()
         
-        data = response.json()
-        if not isinstance(data, list):
-            print(f" ❌ API 返回错误：{data}")
-            return 0
+        for item in data[:100]:  # 最多保存 100 条
+            # 提取字段
+            if isinstance(item, dict):
+                title = item.get('headline') or item.get('title') or item.get('text', '')
+                summary = item.get('summary') or item.get('description') or item.get('content', '')
+                url = item.get('url', '')
+                published = item.get('datetime') or item.get('published_at')
+                source = item.get('source', default_source)
+            else:
+                continue
+            
+            if not title:
+                continue
+            
+            # 处理时间戳
+            if isinstance(published, (int, float)):
+                published = datetime.fromtimestamp(published, tz=BEIJING_TZ)
+            elif isinstance(published, str):
+                try:
+                    published = datetime.fromisoformat(published.replace('Z', '+00:00'))
+                except:
+                    published = datetime.now(BEIJING_TZ)
+            else:
+                published = datetime.now(BEIJING_TZ)
+            
+            # 简单情感分析
+            sentiment_score, sentiment_label = simple_sentiment(title + ' ' + summary)
+            
+            # 检查 URL 是否已存在
+            try:
+                cur.execute("SELECT id FROM news WHERE url = %s LIMIT 1", (url,))
+                if cur.fetchone():
+                    skipped += 1
+                    continue
+            except:
+                pass
+            
+            # 插入数据库
+            try:
+                cur.execute(""""
+                    INSERT INTO news (title, content, source, sentiment_label, sentiment_score, url, created_at)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)
+                """, (
+                    title[:500] if title else '',
+                    summary[:2000] if summary else '',
+                    source,
+                    sentiment_label,
+                    sentiment_score,
+                    url,
+                    published
+                ))
+                saved += 1
+            except Exception as e:
+                continue
         
-        print(f" ✅ 获取到 {len(data)} 条新闻")
+        conn.commit()
+        cur.close()
+    
+    return saved
+
+
+def simple_sentiment(text):
+    """简单情感分析"""
+    if not text:
+        return 0.0, '中性'
+    
+    text_lower = text.lower()
+    
+    positive = ['涨', '上涨', '增长', '利好', '强劲', '突破', '新高', '上升', '反弹',
+               'rise', 'gain', 'grow', 'surge', 'jump', 'beat', 'record', 'strong', 'positive', 'up', 'rally']
+    negative = ['跌', '下跌', '跌幅', '负面', '下滑', '暴跌', '崩盘', '危机',
+               'fall', 'drop', 'decline', 'crash', 'plunge', 'miss', 'weak', 'negative', 'down', 'loss', 'tumble']
+    
+    pos_count = sum(1 for word in positive if word in text_lower)
+    neg_count = sum(1 for word in negative if word in text_lower)
+    
+    if pos_count > neg_count:
+        return 0.6, '积极'
+    elif neg_count > pos_count:
+        return -0.6, '消极'
+    else:
+        return 0.0, '中性'
         
         # 保存到数据库
         saved = 0
