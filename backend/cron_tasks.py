@@ -160,11 +160,10 @@ def fetch_market_data():
         session.close()
 
 def fetch_news():
-    """抓取新闻（使用 Finnhub API）"""
+    """抓取新闻（使用 Finnhub API，不依赖外部库）"""
     print(f"[{datetime.now(BEIJING_TZ)}] 开始抓取新闻...")
     
     from datetime import timedelta
-    import httpx
     
     FINNHUB_API_KEY = "d6l40k1r01qptf3ons10d6l40k1r01qptf3ons1g"
     
@@ -177,6 +176,7 @@ def fetch_news():
     
     try:
         response = httpx.get('https://finnhub.io/api/v1/news', params=params, timeout=15)
+        response.raise_for_status()
         data = response.json()
         
         if not isinstance(data, list):
@@ -194,6 +194,7 @@ def fetch_news():
             summary = item.get('summary', '') or title
             url = item.get('url', '')
             published = item.get('datetime', 0)
+            source = item.get('source', 'Finnhub')
             
             if not title:
                 continue
@@ -202,29 +203,30 @@ def fetch_news():
             sentiment_score = 0.0
             sentiment_label = '中性'
             text_lower = (title + ' ' + summary).lower()
-            if any(word in text_lower for word in ['rise', 'gain', 'grow', 'surge', 'beat', 'strong', 'positive']):
+            if any(word in text_lower for word in ['rise', 'gain', 'grow', 'surge', 'beat', 'strong', 'positive', 'up']):
                 sentiment_score = 0.6
                 sentiment_label = '积极'
-            elif any(word in text_lower for word in ['fall', 'drop', 'decline', 'crash', 'miss', 'weak', 'negative']):
+            elif any(word in text_lower for word in ['fall', 'drop', 'decline', 'crash', 'miss', 'weak', 'negative', 'down']):
                 sentiment_score = -0.6
                 sentiment_label = '消极'
             
             # 插入数据库
             from sqlalchemy import text
-            session.execute(text("""
+            result = session.execute(text("""
                 INSERT INTO news (title, content, source, sentiment_label, sentiment_score, url, published_at)
                 VALUES (:title, :content, :source, :sentiment_label, :sentiment_score, :url, :published_at)
                 ON CONFLICT (title) DO NOTHING
             """), {
                 'title': title,
                 'content': summary,
-                'source': 'Finnhub',
+                'source': source,
                 'sentiment_label': sentiment_label,
                 'sentiment_score': sentiment_score,
                 'url': url,
                 'published_at': datetime.fromtimestamp(published, tz=BEIJING_TZ)
             })
-            saved += 1
+            if result.rowcount > 0:
+                saved += 1
         
         session.commit()
         session.close()
@@ -234,6 +236,8 @@ def fetch_news():
         
     except Exception as e:
         print(f"  ❌ 新闻抓取失败：{e}")
+        import traceback
+        traceback.print_exc()
         return 0
 
 def generate_insights():
