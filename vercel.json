@@ -2,48 +2,14 @@
   "version": 2,
   "builds": [
     {
-      "src": "backend/api_neon.py",
-      "use": "@vercel/python",
-      "config": {
-        "runtime": "python3.11"
-      }
-    },
-    {
-      "src": "frontend/**",
+      "src": "frontend/index.html",
       "use": "@vercel/static"
     }
   ],
-  "env": {},
   "routes": [
-    {
-      "src": "/api/v1/(.*)",
-      "dest": "backend/api_neon.py"
-    },
-    {
-      "src": "/api/(.*)",
-      "dest": "backend/api_neon.py"
-    },
     {
       "src": "/(.*)",
       "dest": "frontend/$1"
-    }
-  ],
-  "crons": [
-    {
-      "path": "/api/v1/cron/fetch-market",
-      "schedule": "0 9 * * *"
-    },
-    {
-      "path": "/api/v1/cron/fetch-news",
-      "schedule": "0 8 * * *"
-    },
-    {
-      "path": "/api/v1/cron/generate-insights",
-      "schedule": "0 9 * * *"
-    },
-    {
-      "path": "/api/v1/cron/build-graph",
-      "schedule": "0 10 * * *"
     }
   ]
 }

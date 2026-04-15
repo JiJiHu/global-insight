@@ -1,8 +1,12 @@
-# Railway Cron 服务配置
+# Railway Cron 服务配置 - 统一任务执行（每 12 小时）
 [build]
 builder = "NIXPACKS"
 
 [deploy]
-startCommand = ". /opt/venv/bin/activate && python backend/cron_tasks.py fetch-market"
+startCommand = ". /opt/venv/bin/activate && python backend/cron_tasks.py all"
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 3
+
+# Cron 配置（通过 Railway 控制台设置）
+# 间隔：12 小时 (43200 秒)
+# 或者使用 cron 表达式：0 */12 * * * (每天 0:00 和 12:00 执行)

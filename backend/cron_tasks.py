@@ -180,22 +180,50 @@ def build_graph():
     # TODO: 实现知识图谱构建
     print(f"[{datetime.now(timezone.utc)}] 知识图谱构建完成")
 
+def run_all_tasks():
+    """统一执行所有任务（每 12 小时一次）"""
+    print("\n" + "="*60)
+    print(f"🕐 开始执行定时任务 - {datetime.now(BEIJING_TZ).strftime('%Y-%m-%d %H:%M:%S')} (北京时间)")
+    print("="*60 + "\n")
+    
+    # 1. 抓取市场数据
+    fetch_market_data()
+    print()
+    
+    # 2. 抓取新闻
+    fetch_news()
+    print()
+    
+    # 3. 生成 AI 洞察
+    generate_insights()
+    print()
+    
+    # 4. 构建知识图谱
+    build_graph()
+    print()
+    
+    print("="*60)
+    print(f"✅ 所有任务执行完成 - {datetime.now(BEIJING_TZ).strftime('%Y-%m-%d %H:%M:%S')}")
+    print("="*60 + "\n")
+
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("用法：python cron_tasks.py <task_name>")
-        print("可用任务：fetch-market, fetch-news, generate-insights, build-graph")
-        sys.exit(1)
-    
-    task = sys.argv[1]
-    
-    if task == "fetch-market":
-        fetch_market_data()
-    elif task == "fetch-news":
-        fetch_news()
-    elif task == "generate-insights":
-        generate_insights()
-    elif task == "build-graph":
-        build_graph()
+        # 无参数时默认执行所有任务
+        run_all_tasks()
     else:
-        print(f"未知任务：{task}")
-        sys.exit(1)
+        task = sys.argv[1]
+        
+        if task == "fetch-market":
+            fetch_market_data()
+        elif task == "fetch-news":
+            fetch_news()
+        elif task == "generate-insights":
+            generate_insights()
+        elif task == "build-graph":
+            build_graph()
+        elif task == "all":
+            run_all_tasks()
+        else:
+            print(f"未知任务：{task}")
+            print("可用任务：fetch-market, fetch-news, generate-insights, build-graph, all")
+            sys.exit(1)
