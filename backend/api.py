@@ -13,6 +13,9 @@ backend_dir = Path(__file__).parent
 if str(backend_dir) not in sys.path:
     sys.path.insert(0, str(backend_dir))
 
+# Vercel 环境检测
+IS_VERCEL = os.getenv("VERCEL") == "1"
+
 # 数据库 URL - 直接从环境变量读取
 DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
