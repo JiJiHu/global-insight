@@ -16,7 +16,8 @@ backup_*.sql
 backup_*.sql.gz
 
 # 子模块
-frontend
+# frontend 目录需要部署到 Vercel
+# frontend
 
 # 环境配置
 .env
