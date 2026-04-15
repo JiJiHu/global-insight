@@ -36,8 +36,9 @@ def fetch_news():
         conn = get_db_connection()
         cur = conn.cursor()
         saved = 0
+        skipped = 0
         
-        for item in data[:30]:  # 最多保存 30 条
+        for item in data[:50]:  # 最多保存 50 条
             title = item.get('headline', '')
             summary = item.get('summary', '') or title
             url = item.get('url', '')
@@ -59,12 +60,17 @@ def fetch_news():
                 sentiment_score = -0.6
                 sentiment_label = '消极'
             
+            # 检查 URL 是否已存在
+            cur.execute("SELECT id FROM news WHERE url = %s LIMIT 1", (url,))
+            if cur.fetchone():
+                skipped += 1
+                continue
+            
             # 插入数据库（使用原生 SQL）
             try:
                 cur.execute("""
                     INSERT INTO news (title, content, source, sentiment_label, sentiment_score, url, created_at)
                     VALUES (%s, %s, %s, %s, %s, %s, %s)
-                    ON CONFLICT (title) DO NOTHING
                 """, (
                     title,
                     summary,
@@ -74,8 +80,7 @@ def fetch_news():
                     url,
                     datetime.fromtimestamp(published, tz=BEIJING_TZ) if published else datetime.now(BEIJING_TZ)
                 ))
-                if cur.rowcount > 0:
-                    saved += 1
+                saved += 1
             except Exception as e:
                 print(f" ⚠️ 保存新闻失败：{e}")
                 continue
@@ -83,6 +88,8 @@ def fetch_news():
         conn.commit()
         cur.close()
         conn.close()
+        
+        print(f" ✅ 成功保存 {saved} 条新闻，跳过 {skipped} 条重复新闻")
         
         print(f" ✅ 成功保存 {saved} 条新闻")
         return saved
