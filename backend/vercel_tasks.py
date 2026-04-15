@@ -61,9 +61,14 @@ def fetch_news():
                 sentiment_label = '消极'
             
             # 检查 URL 是否已存在
-            cur.execute("SELECT id FROM news WHERE url = %s LIMIT 1", (url,))
-            if cur.fetchone():
-                skipped += 1
+            try:
+                cur.execute("SELECT id FROM news WHERE url = %s LIMIT 1", (url,))
+                if cur.fetchone():
+                    skipped += 1
+                    continue
+            except Exception as e:
+                print(f" ⚠️ 查询失败：{e}")
+                conn.rollback()
                 continue
             
             # 插入数据库（使用原生 SQL）
@@ -83,6 +88,9 @@ def fetch_news():
                 saved += 1
             except Exception as e:
                 print(f" ⚠️ 保存新闻失败：{e}")
+                print(f"     标题：{title[:50]}...")
+                print(f"     URL: {url[:80]}...")
+                conn.rollback()
                 continue
         
         conn.commit()
