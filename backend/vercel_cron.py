@@ -40,9 +40,9 @@ def cron_fetch_news():
     schedule: 0 8 * * * (每天 8 点)
     """
     try:
-        from fetch_news_debug import fetch_news_debug
+        from vercel_tasks import fetch_news
         
-        count = fetch_news_debug()
+        count = fetch_news()
         
         return {
             "status": "success",
@@ -50,12 +50,7 @@ def cron_fetch_news():
             "count": count
         }
     except Exception as e:
-        import traceback
-        return {
-            "status": "error",
-            "detail": str(e),
-            "traceback": traceback.format_exc()
-        }
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/api/v1/cron/generate-insights")
 def cron_generate_insights():
