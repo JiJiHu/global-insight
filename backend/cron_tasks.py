@@ -4,7 +4,7 @@ Railway Cron 定时任务 - 抓取市场数据并写入数据库
 """
 import os
 import sys
-import httpx
+import requests
 from datetime import datetime, timezone, timedelta
 
 # 北京时间 (UTC+8)
@@ -52,10 +52,10 @@ def fetch_market_data():
         symbols = ["AAPL", "TSLA", "NVDA", "GOOGL", "MSFT", "AMD", "META", "AMZN"]
         for symbol in symbols:
             try:
-                response = httpx.get(f"https://finnhub.io/api/v1/quote", params={
+                response = requests.get(f"https://finnhub.io/api/v1/quote", params={
                     "symbol": symbol,
                     "token": "d6l40k1r01qptf3ons10d6l40k1r01qptf3ons1g"
-                })
+                }, timeout=10)
                 if response.status_code == 200:
                     data = response.json()
                     if data and 'c' in data:
@@ -77,12 +77,12 @@ def fetch_market_data():
     
     # 加密货币数据
     try:
-        response = httpx.get("https://api.coingecko.com/api/v3/simple/price", params={
+        response = requests.get("https://api.coingecko.com/api/v3/simple/price", params={
             "ids": "bitcoin,ethereum,cardano,dogecoin,solana,tether",
             "vs_currencies": "usd",
             "include_24hr_vol": "true",
             "include_24hr_change": "true"
-        })
+        }, timeout=10)
         if response.status_code == 200:
             data = response.json()
             mapping = {
@@ -175,7 +175,7 @@ def fetch_news():
     }
     
     try:
-        response = httpx.get('https://finnhub.io/api/v1/news', params=params, timeout=15)
+        response = requests.get('https://finnhub.io/api/v1/news', params=params, timeout=15)
         response.raise_for_status()
         data = response.json()
         
@@ -250,7 +250,6 @@ def generate_insights():
     
     try:
         from sqlalchemy import text
-        import httpx
         
         # 获取最新市场数据
         session = Session()
@@ -281,7 +280,7 @@ def generate_insights():
 2. 值得关注的板块或资产
 3. 风险提示"""
         
-        response = httpx.post(
+        response = requests.post(
             "https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation",
             headers={"Authorization": f"Bearer {DASHSCOPE_API_KEY}"},
             json={
