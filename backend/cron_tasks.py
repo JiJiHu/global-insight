@@ -160,25 +160,207 @@ def fetch_market_data():
         session.close()
 
 def fetch_news():
-    """抓取新闻"""
-    print(f"[{datetime.now(timezone.utc)}] 开始抓取新闻...")
-    # TODO: 实现新闻抓取
-    print(f"[{datetime.now(timezone.utc)}] 新闻抓取完成")
+    """抓取新闻（使用 Finnhub API）"""
+    print(f"[{datetime.now(BEIJING_TZ)}] 开始抓取新闻...")
+    
+    from datetime import timedelta
+    import httpx
+    
+    FINNHUB_API_KEY = "d6l40k1r01qptf3ons10d6l40k1r01qptf3ons1g"
+    
+    params = {
+        'token': FINNHUB_API_KEY,
+        'category': 'general',
+        'from': int((datetime.now() - timedelta(days=7)).timestamp()),
+        'to': int(datetime.now().timestamp())
+    }
+    
+    try:
+        response = httpx.get('https://finnhub.io/api/v1/news', params=params, timeout=15)
+        data = response.json()
+        
+        if not isinstance(data, list):
+            print(f"  ❌ API 返回错误：{data}")
+            return 0
+        
+        print(f"  ✅ 获取到 {len(data)} 条新闻")
+        
+        # 保存到数据库
+        session = Session()
+        saved = 0
+        
+        for item in data[:30]:  # 最多保存 30 条
+            title = item.get('headline', '')
+            summary = item.get('summary', '') or title
+            url = item.get('url', '')
+            published = item.get('datetime', 0)
+            
+            if not title:
+                continue
+            
+            # 简单情感分析
+            sentiment_score = 0.0
+            sentiment_label = '中性'
+            text_lower = (title + ' ' + summary).lower()
+            if any(word in text_lower for word in ['rise', 'gain', 'grow', 'surge', 'beat', 'strong', 'positive']):
+                sentiment_score = 0.6
+                sentiment_label = '积极'
+            elif any(word in text_lower for word in ['fall', 'drop', 'decline', 'crash', 'miss', 'weak', 'negative']):
+                sentiment_score = -0.6
+                sentiment_label = '消极'
+            
+            # 插入数据库
+            from sqlalchemy import text
+            session.execute(text("""
+                INSERT INTO news (title, content, source, sentiment_label, sentiment_score, url, published_at)
+                VALUES (:title, :content, :source, :sentiment_label, :sentiment_score, :url, :published_at)
+                ON CONFLICT (title) DO NOTHING
+            """), {
+                'title': title,
+                'content': summary,
+                'source': 'Finnhub',
+                'sentiment_label': sentiment_label,
+                'sentiment_score': sentiment_score,
+                'url': url,
+                'published_at': datetime.fromtimestamp(published, tz=BEIJING_TZ)
+            })
+            saved += 1
+        
+        session.commit()
+        session.close()
+        
+        print(f"  ✅ 成功保存 {saved} 条新闻")
+        return saved
+        
+    except Exception as e:
+        print(f"  ❌ 新闻抓取失败：{e}")
+        return 0
 
 def generate_insights():
-    """生成 AI 洞察"""
-    print(f"[{datetime.now(timezone.utc)}] 开始生成 AI 洞察...")
+    """生成 AI 洞察（基于市场数据和新闻）"""
+    print(f"[{datetime.now(BEIJING_TZ)}] 开始生成 AI 洞察...")
+    
     if not DASHSCOPE_API_KEY:
-        print("  缺少 DASHSCOPE_API_KEY，跳过 AI 洞察生成")
-        return
-    # TODO: 实现 AI 洞察生成
-    print(f"[{datetime.now(timezone.utc)}] AI 洞察生成完成")
+        print("  ⚠️ 缺少 DASHSCOPE_API_KEY，跳过 AI 洞察生成")
+        return 0
+    
+    try:
+        from sqlalchemy import text
+        import httpx
+        
+        # 获取最新市场数据
+        session = Session()
+        result = session.execute(text("""
+            SELECT symbol, type, price, change_percent, timestamp 
+            FROM market_data 
+            WHERE timestamp >= NOW() - INTERVAL '1 hour'
+            ORDER BY timestamp DESC
+        """)).fetchall()
+        
+        if not result:
+            print("  ⚠️ 没有足够的市场数据生成洞察")
+            session.close()
+            return 0
+        
+        # 构建数据摘要
+        market_summary = []
+        for row in result:
+            symbol, type_, price, change, ts = row
+            market_summary.append(f"{symbol} ({type_}): ${price:.2f} ({change:+.2f}%)")
+        
+        # 调用 AI 生成洞察
+        prompt = f"""基于以下金融市场数据，生成简短的投资洞察（200 字以内）：
+{chr(10).join(market_summary)}
+
+请用中文回答，包含：
+1. 市场整体趋势
+2. 值得关注的板块或资产
+3. 风险提示"""
+        
+        response = httpx.post(
+            "https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation",
+            headers={"Authorization": f"Bearer {DASHSCOPE_API_KEY}"},
+            json={
+                "model": "qwen-turbo",
+                "input": {"messages": [{"role": "user", "content": prompt}]}
+            },
+            timeout=30
+        )
+        
+        if response.status_code == 200:
+            ai_content = response.json().get('output', {}).get('text', '')
+            
+            # 保存洞察
+            session.execute(text("""
+                INSERT INTO insights (title, content, created_at)
+                VALUES (:title, :content, :created_at)
+            """), {
+                'title': f'📊 AI 市场洞察 - {datetime.now(BEIJING_TZ).strftime("%m-%d %H:%M")}',
+                'content': ai_content,
+                'created_at': datetime.now(BEIJING_TZ)
+            })
+            session.commit()
+            print(f"  ✅ AI 洞察生成成功")
+        else:
+            print(f"  ❌ AI 调用失败：{response.status_code}")
+        
+        session.close()
+        return 1
+        
+    except Exception as e:
+        print(f"  ❌ AI 洞察生成失败：{e}")
+        return 0
 
 def build_graph():
-    """构建知识图谱"""
-    print(f"[{datetime.now(timezone.utc)}] 开始构建知识图谱...")
-    # TODO: 实现知识图谱构建
-    print(f"[{datetime.now(timezone.utc)}] 知识图谱构建完成")
+    """构建知识图谱（基于市场数据关系）"""
+    print(f"[{datetime.now(BEIJING_TZ)}] 开始构建知识图谱...")
+    
+    try:
+        from sqlalchemy import text
+        
+        session = Session()
+        
+        # 获取所有数据类型
+        result = session.execute(text("""
+            SELECT DISTINCT type FROM market_data
+        """)).fetchall()
+        
+        types = [row[0] for row in result]
+        
+        # 获取每个类型的代表性资产
+        nodes = []
+        links = []
+        
+        # 添加中心节点
+        nodes.append({"id": "market", "label": "金融市场", "type": "center"})
+        
+        for type_ in types:
+            # 添加类型节点
+            nodes.append({"id": type_, "label": type_.upper(), "type": "category"})
+            links.append({"source": "market", "target": type_})
+            
+            # 获取该类型的前 5 个资产
+            assets = session.execute(text("""
+                SELECT symbol, price, change_percent 
+                FROM market_data 
+                WHERE type = :type
+                ORDER BY timestamp DESC 
+                LIMIT 5
+            """), {'type': type_}).fetchall()
+            
+            for symbol, price, change in assets:
+                nodes.append({"id": symbol, "label": symbol, "type": "asset", "price": price, "change": change})
+                links.append({"source": type_, "target": symbol})
+        
+        # 保存到数据库（如果有 insights_graph 表）
+        # 这里简单打印结果
+        print(f"  ✅ 知识图谱构建完成：{len(nodes)} 个节点，{len(links)} 条边")
+        session.close()
+        return {'nodes': nodes, 'links': links}
+        
+    except Exception as e:
+        print(f"  ❌ 知识图谱构建失败：{e}")
+        return {'nodes': [], 'links': []}
 
 def run_all_tasks():
     """统一执行所有任务（每 12 小时一次）"""
