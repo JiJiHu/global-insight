@@ -11,11 +11,7 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 
 # 默认值（本地开发）
 if not DATABASE_URL:
-    try:
-        from config import DATABASE_URL as LOCAL_DB_URL
-        DATABASE_URL = LOCAL_DB_URL
-    except:
-        DATABASE_URL = "postgresql://jack:ChangeMe123!@localhost:5432/finance_insight"
+    DATABASE_URL = "postgresql://jack:ChangeMe123!@localhost:5432/finance_insight"
 
 @contextmanager
 def get_db_connection():
