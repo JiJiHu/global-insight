@@ -5,6 +5,7 @@ from typing import List, Optional
 import json
 import os
 import sys
+from datetime import timezone, timedelta
 
 # Vercel 环境检测和配置
 IS_VERCEL = os.getenv("VERCEL") == "1"
@@ -128,13 +129,16 @@ def get_all_market(type: str = None):
         results = cur.fetchall()
         cur.close()
         
+        # 北京时间时区 (UTC+8)
+        bj_tz = timezone(timedelta(hours=8))
+        
         return [
             {
                 "symbol": r[0],
                 "price": float(r[1]),
                 "change_percent": float(r[2]) if r[2] else 0,
                 "volume": int(r[3]) if r[3] else 0,
-                "timestamp": r[4].isoformat() if r[4] else None,
+                "timestamp": r[4].astimezone(bj_tz).isoformat() if r[4] else None,
                 "type": r[5] if len(r) > 5 else 'stock'
             }
             for r in results
@@ -216,6 +220,9 @@ def get_news(limit: int = 100, offset: int = 0, source: str = None):
         results = cur.fetchall()
         cur.close()
         
+        # 北京时间时区 (UTC+8)
+        bj_tz = timezone(timedelta(hours=8))
+        
         return [
             {
                 "id": r[0],
@@ -223,7 +230,7 @@ def get_news(limit: int = 100, offset: int = 0, source: str = None):
                 "content": r[2] or "暂无详细内容",
                 "source": r[3],
                 "sentiment": r[4],
-                "published_at": r[5].isoformat() if r[5] else None,
+                "published_at": r[5].astimezone(bj_tz).isoformat() if r[5] else None,
                 "url": r[6]
             }
             for r in results
@@ -243,6 +250,9 @@ def get_insights(limit: int = 10):
         results = cur.fetchall()
         cur.close()
         
+        # 北京时间时区 (UTC+8)
+        bj_tz = timezone(timedelta(hours=8))
+        
         return [
             {
                 "id": r[0],
@@ -250,7 +260,7 @@ def get_insights(limit: int = 10):
                 "content": r[2],
                 "confidence_score": float(r[3]) if r[3] else 0,
                 "analysis_type": r[4],
-                "created_at": r[5].isoformat() if r[5] else None,
+                "created_at": r[5].astimezone(bj_tz).isoformat() if r[5] else None,
                 "source": "AI",  # AI 生成的洞察
                 "url": "",  # AI 洞察暂无原文链接
             }
