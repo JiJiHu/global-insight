@@ -7,16 +7,11 @@ import os
 import sys
 from datetime import timezone, timedelta
 
-# Vercel 环境检测和配置
-IS_VERCEL = os.getenv("VERCEL") == "1"
-if IS_VERCEL:
-    # Vercel 环境：使用 config_vercel
-    from config_vercel import DATABASE_URL
-    print(f"[DEBUG] Running on Vercel, DATABASE_URL={DATABASE_URL[:50]}...", file=sys.stderr)
-else:
-    # 本地环境：使用 config
-    from config import DATABASE_URL
-    print(f"[DEBUG] Running locally, DATABASE_URL={DATABASE_URL[:50]}...", file=sys.stderr)
+# 数据库 URL - 直接从环境变量读取
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    raise RuntimeError("DATABASE_URL environment variable is required")
+print(f"[DEBUG] DATABASE_URL configured (length: {len(DATABASE_URL)})", file=sys.stderr)
 
 from db import get_db_connection
 from utils.cache import cached, api_cache
