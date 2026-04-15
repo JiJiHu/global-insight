@@ -6,6 +6,12 @@ import json
 import os
 import sys
 from datetime import timezone, timedelta
+from pathlib import Path
+
+# 添加 backend 目录到 Python 路径（解决 Railway 部署导入问题）
+backend_dir = Path(__file__).parent
+if str(backend_dir) not in sys.path:
+    sys.path.insert(0, str(backend_dir))
 
 # 数据库 URL - 直接从环境变量读取
 DATABASE_URL = os.getenv("DATABASE_URL")
