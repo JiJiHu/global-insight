@@ -32,67 +32,66 @@ def fetch_news_debug():
         return 0
     
     # 2. 连接数据库
-    conn = get_db_connection()
-    cur = conn.cursor()
-    
-    # 3. 检查数据库连接
-    cur.execute("SELECT 1")
-    print(f"✅ 数据库连接正常")
-    
-    # 4. 检查当前新闻总数
-    cur.execute("SELECT COUNT(*) FROM news")
-    print(f"当前新闻总数：{cur.fetchone()[0]}")
-    
-    # 5. 尝试插入第一条新闻
-    item = data[0]
-    title = item.get('headline', '')
-    summary = item.get('summary', '') or title
-    url = item.get('url', '')
-    published = item.get('datetime', 0)
-    source = item.get('source', 'Finnhub')
-    
-    print(f"\n尝试插入第一条新闻:")
-    print(f"  标题：{title[:80]}...")
-    print(f"  URL: {url[:80]}...")
-    print(f"  时间：{datetime.fromtimestamp(published, tz=BEIJING_TZ) if published else 'N/A'}")
-    
-    # 检查 URL 是否存在
-    cur.execute("SELECT id FROM news WHERE url = %s LIMIT 1", (url,))
-    exists = cur.fetchone()
-    print(f"  URL 是否存在：{'是' if exists else '否'}")
-    
-    if not exists:
-        # 尝试插入
-        try:
-            cur.execute("""
-                INSERT INTO news (title, content, source, sentiment_label, sentiment_score, url, created_at)
-                VALUES (%s, %s, %s, %s, %s, %s, %s)
-            """, (
-                title,
-                summary,
-                source,
-                '中性',
-                0.0,
-                url,
-                datetime.fromtimestamp(published, tz=BEIJING_TZ) if published else datetime.now(BEIJING_TZ)
-            ))
-            print(f"✅ 插入成功，影响行数：{cur.rowcount}")
-            
-            conn.commit()
-            print(f"✅ 事务已提交")
-            
-            # 验证插入
-            cur.execute("SELECT COUNT(*) FROM news")
-            print(f"✅ 插入后新闻总数：{cur.fetchone()[0]}")
-            
-        except Exception as e:
-            print(f"❌ 插入失败：{e}")
-            conn.rollback()
-    else:
-        print(f"⚠️ URL 已存在，跳过")
-    
-    cur.close()
-    conn.close()
+    with get_db_connection() as conn:
+        cur = conn.cursor()
+        
+        # 3. 检查数据库连接
+        cur.execute("SELECT 1")
+        print(f"✅ 数据库连接正常")
+        
+        # 4. 检查当前新闻总数
+        cur.execute("SELECT COUNT(*) FROM news")
+        print(f"当前新闻总数：{cur.fetchone()[0]}")
+        
+        # 5. 尝试插入第一条新闻
+        item = data[0]
+        title = item.get('headline', '')
+        summary = item.get('summary', '') or title
+        url = item.get('url', '')
+        published = item.get('datetime', 0)
+        source = item.get('source', 'Finnhub')
+        
+        print(f"\n尝试插入第一条新闻:")
+        print(f"  标题：{title[:80]}...")
+        print(f"  URL: {url[:80]}...")
+        print(f"  时间：{datetime.fromtimestamp(published, tz=BEIJING_TZ) if published else 'N/A'}")
+        
+        # 检查 URL 是否存在
+        cur.execute("SELECT id FROM news WHERE url = %s LIMIT 1", (url,))
+        exists = cur.fetchone()
+        print(f"  URL 是否存在：{'是' if exists else '否'}")
+        
+        if not exists:
+            # 尝试插入
+            try:
+                cur.execute("""
+                    INSERT INTO news (title, content, source, sentiment_label, sentiment_score, url, created_at)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)
+                """, (
+                    title,
+                    summary,
+                    source,
+                    '中性',
+                    0.0,
+                    url,
+                    datetime.fromtimestamp(published, tz=BEIJING_TZ) if published else datetime.now(BEIJING_TZ)
+                ))
+                print(f"✅ 插入成功，影响行数：{cur.rowcount}")
+                
+                conn.commit()
+                print(f"✅ 事务已提交")
+                
+                # 验证插入
+                cur.execute("SELECT COUNT(*) FROM news")
+                print(f"✅ 插入后新闻总数：{cur.fetchone()[0]}")
+                
+            except Exception as e:
+                print(f"❌ 插入失败：{e}")
+                conn.rollback()
+        else:
+            print(f"⚠️ URL 已存在，跳过")
+        
+        cur.close()
     
     return 1 if not exists else 0
 
