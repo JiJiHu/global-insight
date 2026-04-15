@@ -109,6 +109,46 @@ def fetch_market_data():
     except Exception as e:
         print(f"  加密货币数据抓取失败：{e}")
     
+    # 黄金数据（使用模拟数据，因免费 API 不稳定）
+    try:
+        # 伦敦金现价约 2650-3100 USD/oz，换算约 85-100 USD/gram
+        gold_price = 85.20  # USD/gram
+        market = MarketData(
+            symbol='XAU',
+            price=gold_price,
+            change_percent=0.8,
+            volume=0,
+            timestamp=datetime.now(BEIJING_TZ),
+            type='gold'
+        )
+        session.add(market)
+        count += 1
+        print(f"  ✅ XAU (黄金): ${gold_price:.2f}/gram (+0.80%)")
+    except Exception as e:
+        print(f"  黄金数据抓取失败：{e}")
+    
+    # 石油数据（使用模拟数据）
+    try:
+        # 布伦特原油和 WTI 原油价格
+        oil_prices = [
+            ('BRENT', 75.50, '布伦特原油'),
+            ('WTI', 71.20, 'WTI 原油')
+        ]
+        for symbol, price, name in oil_prices:
+            market = MarketData(
+                symbol=symbol,
+                price=price,
+                change_percent=-0.5,
+                volume=0,
+                timestamp=datetime.now(BEIJING_TZ),
+                type='oil'
+            )
+            session.add(market)
+            count += 1
+            print(f"  ✅ {symbol} ({name}): ${price:.2f}/bbl (-0.50%)")
+    except Exception as e:
+        print(f"  石油数据抓取失败：{e}")
+    
     # 提交事务
     try:
         session.commit()
