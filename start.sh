@@ -1,20 +1,26 @@
 #!/bin/bash
-# Railway 智能启动脚本
+set -e
 
-echo "=== Start Script Debug ==="
-echo "RAILWAY_SERVICE_NAME=$RAILWAY_SERVICE_NAME"
-echo "RAILWAY_SERVICE_ID=$RAILWAY_SERVICE_ID"
-echo "========================="
+echo "=== Global Insight Startup ==="
+echo "Service Type: $SERVICE_TYPE (default: cron)"
 
-# 检查是否是 Cron 服务 (efficient-creativity)
-if [ "$RAILWAY_SERVICE_ID" = "8a4bf064-947e-4d01-aa80-6ae20b7166e9" ]; then
-    echo "Starting as Cron service (efficient-creativity)..."
+# 激活虚拟环境
+if [ -f "/opt/venv/bin/activate" ]; then
     . /opt/venv/bin/activate
-    echo "Creating database tables if not exist..."
-    python backend/create_tables.py
-    python backend/cron_tasks.py fetch-market
+    echo "✅ 虚拟环境已激活"
 else
-    echo "Starting as Web service..."
-    . /opt/venv/bin/activate
-    cd backend && uvicorn api:app --host 0.0.0.0 --port $PORT
+    echo "⚠️ 虚拟环境不存在，使用系统 Python"
+fi
+
+# 创建数据库表
+echo "📋 创建数据库表..."
+python backend/create_tables.py
+
+# 执行任务
+if [ "$SERVICE_TYPE" = "web" ]; then
+    echo "🚀 启动 Web 服务..."
+    exec uvicorn backend.api:app --host 0.0.0.0 --port $PORT
+else
+    echo "🕐 执行 Cron 任务..."
+    python backend/cron_tasks.py all
 fi
