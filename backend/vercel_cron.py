@@ -18,13 +18,13 @@ def cron_fetch_market():
     try:
         # 在 Vercel Serverless 环境中，直接调用 Python 脚本
         from fetch_market_data import fetch_all_market_data
-        from fetch_commodities import fetch_commodities
+        from fetch_commodities import fetch_all
         
         # 抓取美股
         fetch_all_market_data()
         
         # 抓取大宗商品
-        fetch_commodities()
+        fetch_all()
         
         return {
             "status": "success",
