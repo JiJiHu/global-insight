@@ -40,13 +40,14 @@ def cron_fetch_news():
     schedule: 0 8 * * * (每天 8 点)
     """
     try:
-        from fetch_news_sources import fetch_all_sources
+        from cron_tasks import fetch_news
         
-        fetch_all_sources()
+        count = fetch_news()
         
         return {
             "status": "success",
-            "message": "News fetched successfully"
+            "message": f"News fetched successfully: {count} articles",
+            "count": count
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -58,13 +59,14 @@ def cron_generate_insights():
     schedule: 0 9 * * * (每天 9 点)
     """
     try:
-        from generate_ai_insights_v3 import generate_daily_insights
+        from cron_tasks import generate_insights
         
-        generate_daily_insights()
+        count = generate_insights()
         
         return {
             "status": "success",
-            "message": "AI insights generated successfully"
+            "message": f"AI insights generated: {count} insights",
+            "count": count
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -76,13 +78,14 @@ def cron_build_graph():
     schedule: 0 10 * * * (每天 10 点)
     """
     try:
-        from build_knowledge_graph_v2 import build_graph
+        from cron_tasks import build_graph
         
-        build_graph()
+        graph = build_graph()
         
         return {
             "status": "success",
-            "message": "Knowledge graph built successfully"
+            "message": f"Knowledge graph built: {len(graph.get('nodes', []))} nodes, {len(graph.get('links', []))} edges",
+            "graph": graph
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
