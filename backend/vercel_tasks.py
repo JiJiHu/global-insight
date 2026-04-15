@@ -10,9 +10,32 @@ from db import get_db_connection
 # 北京时间 (UTC+8)
 BEIJING_TZ = timezone(timedelta(hours=8))
 
+def simple_sentiment(text):
+    """简单情感分析"""
+    if not text:
+        return 0.0, '中性'
+    
+    text_lower = text.lower()
+    
+    positive = ['涨', '上涨', '增长', '利好', '强劲', '突破', '新高', '上升', '反弹',
+               'rise', 'gain', 'grow', 'surge', 'jump', 'beat', 'record', 'strong', 'positive', 'up', 'rally']
+    negative = ['跌', '下跌', '跌幅', '负面', '下滑', '暴跌', '崩盘', '危机',
+               'fall', 'drop', 'decline', 'crash', 'plunge', 'miss', 'weak', 'negative', 'down', 'loss', 'tumble']
+    
+    pos_count = sum(1 for word in positive if word in text_lower)
+    neg_count = sum(1 for word in negative if word in text_lower)
+    
+    if pos_count > neg_count:
+        return 0.6, '积极'
+    elif neg_count > pos_count:
+        return -0.6, '消极'
+    else:
+        return 0.0, '中性'
+
+
 def fetch_news():
-    """抓取新闻并写入数据库 - 多源版本"""
-    print(f"[{datetime.now(BEIJING_TZ)}] 开始抓取新闻 (多源)...")
+    """抓取新闻并写入数据库（多源版本）"""
+    print(f"[{datetime.now(BEIJING_TZ)}] 开始抓取新闻...")
     
     total_saved = 0
     
@@ -33,17 +56,19 @@ def fetch_news():
     except Exception as e:
         print(f" ❌ Finnhub 抓取失败：{e}")
     
-    # 2. 尝试从其他来源抓取
-    # 调用 fetch_news_sources.py 如果可用
+    # 2. 尝试从 fetch_news_sources 导入更多新闻源
     try:
         from fetch_news_sources import fetch_all_sources
-        sources_saved = fetch_all_sources()
-        total_saved += sources_saved
-        print(f" ✅ 其他来源保存了 {sources_saved} 条新闻")
-    except ImportError as e:
-        print(f" ⚠️ fetch_news_sources 模块不可用：{e}")
+        try:
+            sources_saved = fetch_all_sources()
+            total_saved += sources_saved
+            print(f" ✅ 其他来源保存了 {sources_saved} 条新闻")
+        except Exception as e:
+            print(f" ⚠️ fetch_news_sources 执行失败：{e}")
+    except ImportError:
+        print(" ⚠️ fetch_news_sources 模块不可用，仅使用 Finnhub")
     except Exception as e:
-        print(f" ⚠️ fetch_news_sources 执行失败：{e}")
+        print(f" ⚠️ 导入失败：{e}")
     
     print(f"\n📊 新闻抓取完成！共保存 {total_saved} 条新闻")
     return total_saved
@@ -57,16 +82,12 @@ def save_news_batch(data, default_source="Finnhub"):
     with get_db_connection() as conn:
         cur = conn.cursor()
         
-        for item in data[:100]:  # 最多保存 100 条
-            # 提取字段
-            if isinstance(item, dict):
-                title = item.get('headline') or item.get('title') or item.get('text', '')
-                summary = item.get('summary') or item.get('description') or item.get('content', '')
-                url = item.get('url', '')
-                published = item.get('datetime') or item.get('published_at')
-                source = item.get('source', default_source)
-            else:
-                continue
+        for item in data[:100]:
+            title = item.get('headline') or item.get('title') or item.get('text', '')
+            summary = item.get('summary') or item.get('description') or item.get('content', '')
+            url = item.get('url', '')
+            published = item.get('datetime') or item.get('published_at')
+            source = item.get('source', default_source)
             
             if not title:
                 continue
@@ -96,7 +117,7 @@ def save_news_batch(data, default_source="Finnhub"):
             
             # 插入数据库
             try:
-                cur.execute(""""
+                cur.execute("""
                     INSERT INTO news (title, content, source, sentiment_label, sentiment_score, url, created_at)
                     VALUES (%s, %s, %s, %s, %s, %s, %s)
                 """, (
@@ -109,110 +130,13 @@ def save_news_batch(data, default_source="Finnhub"):
                     published
                 ))
                 saved += 1
-            except Exception as e:
+            except:
                 continue
         
         conn.commit()
         cur.close()
     
     return saved
-
-
-def simple_sentiment(text):
-    """简单情感分析"""
-    if not text:
-        return 0.0, '中性'
-    
-    text_lower = text.lower()
-    
-    positive = ['涨', '上涨', '增长', '利好', '强劲', '突破', '新高', '上升', '反弹',
-               'rise', 'gain', 'grow', 'surge', 'jump', 'beat', 'record', 'strong', 'positive', 'up', 'rally']
-    negative = ['跌', '下跌', '跌幅', '负面', '下滑', '暴跌', '崩盘', '危机',
-               'fall', 'drop', 'decline', 'crash', 'plunge', 'miss', 'weak', 'negative', 'down', 'loss', 'tumble']
-    
-    pos_count = sum(1 for word in positive if word in text_lower)
-    neg_count = sum(1 for word in negative if word in text_lower)
-    
-    if pos_count > neg_count:
-        return 0.6, '积极'
-    elif neg_count > pos_count:
-        return -0.6, '消极'
-    else:
-        return 0.0, '中性'
-        
-        # 保存到数据库
-        saved = 0
-        skipped = 0
-        
-        with get_db_connection() as conn:
-            cur = conn.cursor()
-            
-            for item in data[:50]:  # 最多保存 50 条
-                title = item.get('headline', '')
-                summary = item.get('summary', '') or title
-                url = item.get('url', '')
-                published = item.get('datetime', 0)
-                source = item.get('source', 'Finnhub')
-                
-                if not title:
-                    continue
-                
-                # 简单情感分析
-                sentiment_score = 0.0
-                sentiment_label = '中性'
-                text_lower = (title + ' ' + summary).lower()
-                
-                if any(word in text_lower for word in ['rise', 'gain', 'grow', 'surge', 'beat', 'strong', 'positive', 'up']):
-                    sentiment_score = 0.6
-                    sentiment_label = '积极'
-                elif any(word in text_lower for word in ['fall', 'drop', 'decline', 'crash', 'miss', 'weak', 'negative', 'down']):
-                    sentiment_score = -0.6
-                    sentiment_label = '消极'
-                
-                # 检查 URL 是否已存在
-                try:
-                    cur.execute("SELECT id FROM news WHERE url = %s LIMIT 1", (url,))
-                    if cur.fetchone():
-                        skipped += 1
-                        continue
-                except Exception as e:
-                    print(f" ⚠️ 查询失败：{e}")
-                    conn.rollback()
-                    continue
-                
-                # 插入数据库（使用原生 SQL）
-                try:
-                    cur.execute("""
-                        INSERT INTO news (title, content, source, sentiment_label, sentiment_score, url, created_at)
-                        VALUES (%s, %s, %s, %s, %s, %s, %s)
-                    """, (
-                        title,
-                        summary,
-                        source,
-                        sentiment_label,
-                        sentiment_score,
-                        url,
-                        datetime.fromtimestamp(published, tz=BEIJING_TZ) if published else datetime.now(BEIJING_TZ)
-                    ))
-                    saved += 1
-                except Exception as e:
-                    print(f" ⚠️ 保存新闻失败：{e}")
-                    print(f"     标题：{title[:50]}...")
-                    print(f"     URL: {url[:80]}...")
-                    conn.rollback()
-                    continue
-            
-            conn.commit()
-            cur.close()
-        
-        print(f" ✅ 成功保存 {saved} 条新闻，跳过 {skipped} 条重复新闻")
-        return saved
-        
-    except Exception as e:
-        print(f" ❌ 新闻抓取失败：{e}")
-        import traceback
-        traceback.print_exc()
-        return 0
 
 
 def generate_insights():
@@ -228,7 +152,6 @@ def generate_insights():
         with get_db_connection() as conn:
             cur = conn.cursor()
             
-            # 获取最新市场数据
             cur.execute("""
                 SELECT symbol, type, price, change_percent 
                 FROM market_data 
@@ -242,7 +165,6 @@ def generate_insights():
                 cur.close()
                 return 0
             
-            # 生成简单洞察
             insight_title = f"📊 市场快报 - {datetime.now(BEIJING_TZ).strftime('%Y-%m-%d %H:%M')}"
             insight_content = "今日市场动态：\n"
             
@@ -251,7 +173,6 @@ def generate_insights():
                     trend = "📈" if change > 0 else "📉"
                     insight_content += f"{trend} {symbol}: ${price:.2f} ({change:+.2f}%)\n"
             
-            # 插入数据库
             cur.execute("""
                 INSERT INTO insights (title, content, analysis_type, confidence_score, created_at)
                 VALUES (%s, %s, %s, %s, %s)
@@ -282,22 +203,18 @@ def build_graph():
         with get_db_connection() as conn:
             cur = conn.cursor()
             
-            # 获取所有资产类型
             cur.execute("SELECT DISTINCT type FROM market_data")
             types = [row[0] for row in cur.fetchall()]
             
             nodes = []
             links = []
             
-            # 添加中心节点
             nodes.append({"id": "market", "label": "金融市场", "type": "center"})
             
             for type_ in types:
-                # 添加类型节点
                 nodes.append({"id": type_, "label": type_.upper(), "type": "category"})
                 links.append({"source": "market", "target": type_})
                 
-                # 获取该类型的前 5 个资产
                 cur.execute("""
                     SELECT symbol, price, change_percent 
                     FROM market_data 
