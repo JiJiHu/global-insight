@@ -213,8 +213,8 @@ def fetch_news():
             # 插入数据库
             from sqlalchemy import text
             result = session.execute(text("""
-                INSERT INTO news (title, content, source, sentiment_label, sentiment_score, url, published_at)
-                VALUES (:title, :content, :source, :sentiment_label, :sentiment_score, :url, :published_at)
+                INSERT INTO news (title, content, source, sentiment_label, sentiment_score, url, created_at)
+                VALUES (:title, :content, :source, :sentiment_label, :sentiment_score, :url, :created_at)
                 ON CONFLICT (title) DO NOTHING
             """), {
                 'title': title,
@@ -223,7 +223,7 @@ def fetch_news():
                 'sentiment_label': sentiment_label,
                 'sentiment_score': sentiment_score,
                 'url': url,
-                'published_at': datetime.fromtimestamp(published, tz=BEIJING_TZ)
+                'created_at': datetime.fromtimestamp(published, tz=BEIJING_TZ)
             })
             if result.rowcount > 0:
                 saved += 1
