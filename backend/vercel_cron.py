@@ -40,7 +40,7 @@ def cron_fetch_news():
     schedule: 0 8 * * * (每天 8 点)
     """
     try:
-        from cron_tasks import fetch_news
+        from vercel_tasks import fetch_news
         
         count = fetch_news()
         
@@ -59,7 +59,7 @@ def cron_generate_insights():
     schedule: 0 9 * * * (每天 9 点)
     """
     try:
-        from cron_tasks import generate_insights
+        from vercel_tasks import generate_insights
         
         count = generate_insights()
         
@@ -78,7 +78,7 @@ def cron_build_graph():
     schedule: 0 10 * * * (每天 10 点)
     """
     try:
-        from cron_tasks import build_graph
+        from vercel_tasks import build_graph
         
         graph = build_graph()
         
