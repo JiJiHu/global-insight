@@ -7,3 +7,9 @@ healthcheckPath = "/api/v1/health"
 healthcheckTimeout = 100
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 3
+
+# Cron 定时任务 - 每天 00:00 UTC (北京时间 08:00) 执行
+[[crons]]
+name = "daily-news-fetcher"
+schedule = "0 0 * * *"
+command = "python backend/cron_tasks.py all"
