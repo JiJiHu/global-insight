@@ -9,8 +9,7 @@ restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 3
 
 # Cron 定时任务 - 每小时执行一次
-# 使用简化版脚本，执行更快
 [[crons]]
 name = "hourly-data-fetcher"
 schedule = "0 * * * *"
-command = "python backend/cron_simple.py"
+command = "/opt/venv/bin/python backend/cron_simple.py"
