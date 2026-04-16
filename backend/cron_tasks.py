@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """
-Railway Cron 定时任务 - 抓取市场数据并写入数据库
+Railway Cron 定时任务 - 抓取市场数据和新闻并写入数据库
+每 30 分钟执行一次
 """
 import os
 import sys
 import requests
+import feedparser
 from datetime import datetime, timezone, timedelta
 
 # 北京时间 (UTC+8)
@@ -160,30 +162,157 @@ def fetch_market_data():
         session.close()
 
 def fetch_news():
-    """抓取新闻（使用 Finnhub API，不依赖外部库）"""
+    """抓取新闻（多来源：Finnhub + RSS + Twitter）"""
     print(f"[{datetime.now(BEIJING_TZ)}] 开始抓取新闻...")
     
     from datetime import timedelta
+    from sqlalchemy import text
     
     FINNHUB_API_KEY = "d6l40k1r01qptf3ons10d6l40k1r01qptf3ons1g"
+    total = 0
+    session = Session()
     
-    params = {
-        'token': FINNHUB_API_KEY,
-        'category': 'general',
-        'from': int((datetime.now() - timedelta(days=7)).timestamp()),
-        'to': int(datetime.now().timestamp())
+    # 1. Finnhub API (Reuters, CNBC, Bloomberg)
+    print("\n📰 Finnhub API...")
+    try:
+        params = {
+            'token': FINNHUB_API_KEY,
+            'category': 'general',
+            'from': int((datetime.now() - timedelta(days=3)).timestamp()),
+            'to': int(datetime.now().timestamp())
+        }
+        response = requests.get('https://finnhub.io/api/v1/news', params=params, timeout=15)
+        data = response.json()
+        print(f"  获取到 {len(data)} 条")
+        
+        for item in data[:50]:
+            title = item.get('headline', '')
+            summary = item.get('summary', '') or title
+            url = item.get('url', '')
+            published = item.get('datetime', 0)
+            source = item.get('source', 'Finnhub')
+            
+            if not title:
+                continue
+            
+            try:
+                session.execute(text("""
+                    INSERT INTO news (title, content, source, url, created_at)
+                    VALUES (:title, :content, :source, :url, :created_at)
+                """), {
+                    'title': title[:500],
+                    'content': summary[:2000],
+                    'source': source,
+                    'url': url[:500],
+                    'created_at': datetime.fromtimestamp(published, tz=timezone.utc)
+                })
+                total += 1
+            except:
+                pass
+        
+        print(f"  ✅ 插入 {min(len(data), 50)} 条")
+    except Exception as e:
+        print(f"  ❌ Finnhub 失败：{e}")
+    
+    # 2. RSS 新闻源
+    rss_sources = {
+        '中国新闻网财经': 'https://www.chinanews.com.cn/rss/finance.xml',
+        'Bloomberg': 'https://feeds.bloomberg.com/markets/news.rss',
+        'Investing.com': 'https://cn.investing.com/rss/news.rss',
+        'CNBC Top News': 'https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=10001147',
+        'GitHub': 'https://github.blog/feed/',
     }
     
+    for name, url in rss_sources.items():
+        print(f"\n📰 {name}...")
+        try:
+            feed = feedparser.parse(url)
+            print(f"  获取到 {len(feed.entries)} 条")
+            
+            for entry in feed.entries[:20]:
+                title = entry.title[:500]
+                summary = entry.get('description', entry.get('summary', ''))[:2000]
+                link = entry.get('link', '')[:500]
+                pub_date = entry.get('published', '')
+                
+                try:
+                    dt = datetime.strptime(pub_date, '%a, %d %b %Y %H:%M:%S %z')
+                    ts = dt.isoformat()
+                except:
+                    ts = datetime.now(timezone.utc).isoformat()
+                
+                try:
+                    session.execute(text("""
+                        INSERT INTO news (title, content, source, url, created_at)
+                        VALUES (:title, :content, :source, :url, :created_at)
+                    """), {
+                        'title': title,
+                        'content': summary,
+                        'source': name,
+                        'url': link,
+                        'created_at': ts
+                    })
+                    total += 1
+                except:
+                    pass
+            
+            print(f"  ✅ 插入 {min(len(feed.entries), 20)} 条")
+        except Exception as e:
+            print(f"  ❌ {name} 失败：{e}")
+    
+    # 3. Twitter (通过 Nitter)
+    twitter_accounts = ['Reuters', 'Bloomberg', 'WSJ', 'CNBC', 'FinancialTimes']
+    for account in twitter_accounts:
+        print(f"\n🐦 Twitter: @{account}...")
+        try:
+            rss_url = f'https://nitter.net/{account}/rss'
+            feed = feedparser.parse(rss_url)
+            print(f"  获取到 {len(feed.entries)} 条")
+            
+            for entry in feed.entries[:10]:
+                title = entry.title[:500]
+                link = entry.link[:500]
+                pub_date = entry.get('published', '')
+                
+                try:
+                    dt = datetime.strptime(pub_date, '%a, %d %b %Y %H:%M:%S %z')
+                    ts = dt.isoformat()
+                except:
+                    ts = datetime.now(timezone.utc).isoformat()
+                
+                source = f'Twitter-{account}'
+                try:
+                    session.execute(text("""
+                        INSERT INTO news (title, content, source, url, created_at)
+                        VALUES (:title, :content, :source, :url, :created_at)
+                    """), {
+                        'title': title,
+                        'content': '',
+                        'source': source,
+                        'url': link,
+                        'created_at': ts
+                    })
+                    total += 1
+                except:
+                    pass
+            
+            print(f"  ✅ 插入 {min(len(feed.entries), 10)} 条")
+        except Exception as e:
+            print(f"  ❌ @{account} 失败：{e}")
+    
+    # 提交所有
     try:
-        response = requests.get('https://finnhub.io/api/v1/news', params=params, timeout=15)
-        response.raise_for_status()
-        data = response.json()
-        
-        if not isinstance(data, list):
-            print(f"  ❌ API 返回错误：{data}")
-            return 0
-        
-        print(f"  ✅ 获取到 {len(data)} 条新闻")
+        session.commit()
+        print(f"\n{'='*50}")
+        print(f"✅ 新闻抓取完成！共插入 {total} 条")
+        print(f"{'='*50}")
+    except Exception as e:
+        session.rollback()
+        print(f"  ❌ 数据库提交失败：{e}")
+    finally:
+        session.close()
+    
+    return total
         
         # 保存到数据库
         session = Session()

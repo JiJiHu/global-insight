@@ -2,8 +2,4 @@
 nixPkgs = ["python311"]
 
 [phases.install]
-cmds = ["python -m venv /opt/venv", ". /opt/venv/bin/activate", "pip install fastapi uvicorn psycopg2-binary pgvector sqlalchemy pydantic python-dotenv requests aiohttp httpx dashscope yfinance"]
-
-# 注意：启动命令由 railway.toml 中的 start.sh 控制，此处仅用于 Vercel 或其他平台
-# [start]
-# cmd = ". /opt/venv/bin/activate && python backend/cron_tasks.py fetch-market"
+cmds = ["python -m venv /opt/venv", ". /opt/venv/bin/activate", "pip install fastapi uvicorn psycopg2-binary pgvector sqlalchemy pydantic python-dotenv requests aiohttp httpx dashscope yfinance feedparser"]

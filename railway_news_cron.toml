@@ -1,0 +1,18 @@
+# Railway 新闻抓取定时任务
+# 每 30 分钟执行一次
+
+[build]
+builder = "NIXPACKS"
+
+[deploy]
+startCommand = "python backend/railway_fetch_news.py"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3
+
+# Cron 配置
+# 在 Railway 控制台设置：
+# 1. 进入项目：zestful-education
+# 2. 选择服务：efficient-creativity
+# 3. Settings → Cron → 添加定时任务
+# 4. 设置：*/30 * * * * (每 30 分钟)
+# 5. Command: python backend/railway_fetch_news.py
