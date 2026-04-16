@@ -30,14 +30,7 @@ class MarketData(Base):
 engine = create_engine(DATABASE_URL)
 print(f"Connecting to database...")
 
-# 删除旧表（如果存在）
-from sqlalchemy import MetaData
-metadata = MetaData()
-metadata.reflect(bind=engine)
-if 'market_data' in metadata.tables:
-    print("Dropping old table...")
-    Base.metadata.drop_all(engine, tables=[Base.metadata.tables['market_data']])
-
-# 创建新表
+# 只在表不存在时创建（不删除旧数据）
 Base.metadata.create_all(engine)
+print(f"✅ Table 'market_data' ready (created if not exists)")
 print(f"✅ Table 'market_data' created successfully!")
