@@ -97,12 +97,14 @@ def fetch_news():
     print(f"[{datetime.now(BEIJING_TZ)}] 开始抓取新闻...")
     conn = get_conn()
     if not conn:
+        print("  ❌ 数据库连接失败")
         return 0
     
     cur = conn.cursor()
     count = 0
     
     # 1. Finnhub API (最多 30 条)
+    print(f"  📡 请求 Finnhub API...")
     try:
         from datetime import timedelta
         params = {
@@ -112,8 +114,10 @@ def fetch_news():
             'to': int(datetime.now().timestamp())
         }
         resp = requests.get('https://finnhub.io/api/v1/news', params=params, timeout=10)
+        print(f"  Finnhub 响应状态码：{resp.status_code}")
         if resp.status_code == 200:
             data = resp.json()
+            print(f"  Finnhub 返回数据：{len(data) if isinstance(data, list) else '非列表'} 条")
             if isinstance(data, list):
                 for item in data[:30]:
                     title = item.get('headline', '')[:500]
@@ -136,7 +140,8 @@ def fetch_news():
                         """, (title, summary, source, url, ts))
                         count += 1
                     except Exception as e:
-                        pass
+                        print(f"  ⚠️ 插入失败：{e}")
+                print(f"  Finnhub 插入了 {count} 条")
     except Exception as e:
         print(f"  ❌ Finnhub 失败：{e}")
     
