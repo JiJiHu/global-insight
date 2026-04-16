@@ -16,20 +16,30 @@ BEIJING_TZ = timezone(timedelta(hours=8))
 DATABASE_URL = os.getenv("DATABASE_URL")
 FINNHUB_API_KEY = "d6l40k1r01qptf3ons10d6l40k1r01qptf3ons1g"
 
+print(f"[{datetime.now(BEIJING_TZ)}] Cron 任务启动...")
+
 if not DATABASE_URL:
     print("ERROR: DATABASE_URL not set!")
     sys.exit(1)
 
-# 使用原生 psycopg2 连接（更快）
+# 使用原生 psycopg2 连接
 import psycopg2
 
 def get_conn():
-    return psycopg2.connect(DATABASE_URL)
+    try:
+        conn = psycopg2.connect(DATABASE_URL, connect_timeout=10)
+        return conn
+    except Exception as e:
+        print(f"ERROR: 数据库连接失败 - {e}")
+        return None
 
 def fetch_market_data():
     """快速抓取市场数据"""
     print(f"[{datetime.now(BEIJING_TZ)}] 开始抓取市场数据...")
     conn = get_conn()
+    if not conn:
+        return 0
+    
     cur = conn.cursor()
     count = 0
     
@@ -44,14 +54,15 @@ def fetch_market_data():
             )
             if resp.status_code == 200:
                 data = resp.json()
-                if data and 'c' in data:
+                if data and 'c' in data and data['c'] > 0:
                     cur.execute("""
                         INSERT INTO market_data (symbol, type, price, change_percent, volume, timestamp)
                         VALUES (%s, 'stock', %s, %s, %s, NOW())
+                        ON CONFLICT DO NOTHING
                     """, (symbol, data['c'], data['dp'], data.get('v', 0)))
                     count += 1
-        except:
-            pass
+        except Exception as e:
+            print(f"  ⚠️ {symbol} 失败: {e}")
     
     # 2. 加密货币（6 只）
     crypto_map = {"bitcoin": "BTC", "ethereum": "ETH", "cardano": "ADA", 
@@ -69,28 +80,11 @@ def fetch_market_data():
                 cur.execute("""
                     INSERT INTO market_data (symbol, type, price, change_percent, volume, timestamp)
                     VALUES (%s, 'crypto', %s, %s, 0, NOW())
+                    ON CONFLICT DO NOTHING
                 """, (symbol, info['usd'], info.get('usd_24h_change', 0)))
                 count += 1
-    except:
-        pass
-    
-    # 3. 黄金和石油
-    try:
-        resp = requests.get(
-            "https://api.metals.dev/v1/latest",
-            params={"api_key": "demo", "symbols": "XAU"},
-            timeout=5
-        )
-        if resp.status_code == 200:
-            data = resp.json()
-            if 'metals' in data and 'XAU' in data['metals']:
-                cur.execute("""
-                    INSERT INTO market_data (symbol, type, price, change_percent, volume, timestamp)
-                    VALUES ('XAU', 'gold', %s, 0, 0, NOW())
-                """, (data['metals']['XAU'].get('price', 600),))
-                count += 1
-    except:
-        pass
+    except Exception as e:
+        print(f"  ⚠️ 加密货币失败: {e}")
     
     conn.commit()
     cur.close()
@@ -102,6 +96,9 @@ def fetch_news():
     """快速抓取新闻"""
     print(f"[{datetime.now(BEIJING_TZ)}] 开始抓取新闻...")
     conn = get_conn()
+    if not conn:
+        return 0
+    
     cur = conn.cursor()
     count = 0
     
@@ -116,21 +113,30 @@ def fetch_news():
         }
         resp = requests.get('https://finnhub.io/api/v1/news', params=params, timeout=10)
         if resp.status_code == 200:
-            for item in resp.json()[:30]:
-                title = item.get('headline', '')[:500]
-                if not title:
-                    continue
-                summary = item.get('summary', '')[:2000] or title
-                url = item.get('url', '')[:500]
-                source = item.get('source', 'Finnhub')
-                published = item.get('datetime', 0)
-                ts = datetime.fromtimestamp(published, tz=timezone.utc).isoformat()
-                
-                cur.execute("""
-                    INSERT INTO news (title, content, source, url, created_at)
-                    VALUES (%s, %s, %s, %s, %s)
-                """, (title, summary, source, url, ts))
-                count += 1
+            data = resp.json()
+            if isinstance(data, list):
+                for item in data[:30]:
+                    title = item.get('headline', '')[:500]
+                    if not title:
+                        continue
+                    summary = item.get('summary', '')[:2000] or title
+                    url = item.get('url', '')[:500]
+                    source = item.get('source', 'Finnhub')
+                    published = item.get('datetime', 0)
+                    if published:
+                        ts = datetime.fromtimestamp(published, tz=timezone.utc).isoformat()
+                    else:
+                        ts = datetime.now(timezone.utc).isoformat()
+                    
+                    try:
+                        cur.execute("""
+                            INSERT INTO news (title, content, source, url, created_at)
+                            VALUES (%s, %s, %s, %s, %s)
+                            ON CONFLICT DO NOTHING
+                        """, (title, summary, source, url, ts))
+                        count += 1
+                    except Exception as e:
+                        pass
     except Exception as e:
         print(f"  ❌ Finnhub 失败：{e}")
     
@@ -150,18 +156,25 @@ def fetch_news():
                 pub_date = entry.get('published', '')
                 
                 try:
-                    dt = datetime.strptime(pub_date, '%a, %d %b %Y %H:%M:%S %z')
-                    ts = dt.isoformat()
+                    if pub_date:
+                        dt = datetime.strptime(pub_date, '%a, %d %b %Y %H:%M:%S %z')
+                        ts = dt.isoformat()
+                    else:
+                        ts = datetime.now(timezone.utc).isoformat()
                 except:
                     ts = datetime.now(timezone.utc).isoformat()
                 
-                cur.execute("""
-                    INSERT INTO news (title, content, source, url, created_at)
-                    VALUES (%s, %s, %s, %s, %s)
-                """, (title, summary, name, link, ts))
-                count += 1
-        except:
-            pass
+                try:
+                    cur.execute("""
+                        INSERT INTO news (title, content, source, url, created_at)
+                        VALUES (%s, %s, %s, %s, %s)
+                        ON CONFLICT DO NOTHING
+                    """, (title, summary, name, link, ts))
+                    count += 1
+                except:
+                    pass
+        except Exception as e:
+            print(f"  ⚠️ {name} 失败: {e}")
     
     conn.commit()
     cur.close()
@@ -184,4 +197,10 @@ def main():
     print("="*50 + "\n")
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        print(f"ERROR: {e}")
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
