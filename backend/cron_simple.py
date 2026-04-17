@@ -36,10 +36,35 @@ import psycopg2
 def get_conn():
     try:
         conn = psycopg2.connect(DATABASE_URL, connect_timeout=10)
+        # 确保表存在
+        ensure_tables(conn)
         return conn
     except Exception as e:
         print(f"ERROR: 数据库连接失败 - {e}")
         return None
+
+def ensure_tables(conn):
+    """确保数据库表存在"""
+    cur = conn.cursor()
+    try:
+        # 创建 news 表（如果不存在）
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS news (
+                id SERIAL PRIMARY KEY,
+                title TEXT NOT NULL,
+                content TEXT,
+                source VARCHAR(255),
+                url TEXT UNIQUE,
+                created_at TIMESTAMP DEFAULT NOW()
+            )
+        """)
+        conn.commit()
+        print("  ✅ 数据库表已确认")
+    except Exception as e:
+        print(f"  ⚠️ 建表警告：{e}")
+        conn.rollback()
+    finally:
+        cur.close()
 
 def fetch_market_data():
     """快速抓取市场数据"""
