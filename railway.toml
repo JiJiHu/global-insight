@@ -8,8 +8,8 @@ healthcheckTimeout = 100
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 3
 
-# Cron 定时任务 - 直接运行 Python 脚本，不使用 start.sh
+# Cron 定时任务 - 通过环境变量触发 cron 模式
 [[crons]]
 name = "data-fetcher"
 schedule = "0 */2 * * *"
-startCommand = "python backend/cron_simple.py"
+command = "SERVICE_TYPE=cron ./start.sh"

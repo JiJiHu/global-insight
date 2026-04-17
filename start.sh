@@ -19,7 +19,7 @@ python backend/create_tables.py
 # 执行任务（默认 web 模式）
 if [ "${SERVICE_TYPE}" = "cron" ]; then
     echo "🕐 执行 Cron 任务..."
-    python backend/cron_tasks.py all
+    python backend/cron_simple.py
 else
     echo "🚀 启动 Web 服务..."
     exec uvicorn backend.api:app --host 0.0.0.0 --port ${PORT:-8000}
