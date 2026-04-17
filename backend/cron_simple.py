@@ -52,14 +52,14 @@ def fetch_market_data():
     cur = conn.cursor()
     count = 0
     
-    # 1. 美股（5 只核心股票）
-    symbols = ["AAPL", "TSLA", "NVDA", "MSFT", "GOOGL"]
+    # 1. 美股（8 只）
+    symbols = ["AAPL", "TSLA", "NVDA", "GOOGL", "MSFT", "AMD", "META", "AMZN"]
     for symbol in symbols:
         try:
             resp = requests.get(
                 f"https://finnhub.io/api/v1/quote",
                 params={"symbol": symbol, "token": FINNHUB_API_KEY},
-                timeout=3  # 缩短超时到 3 秒
+                timeout=5
             )
             if resp.status_code == 200:
                 data = resp.json()
@@ -73,14 +73,15 @@ def fetch_market_data():
         except Exception as e:
             print(f"  ⚠️ {symbol} 失败: {e}")
     
-    # 2. 加密货币（3 只主要的）
-    crypto_map = {"bitcoin": "BTC", "ethereum": "ETH", "tether": "USDT"}
+    # 2. 加密货币（6 只）
+    crypto_map = {"bitcoin": "BTC", "ethereum": "ETH", "cardano": "ADA", 
+                  "dogecoin": "DOGE", "solana": "SOL", "tether": "USDT"}
     try:
         resp = requests.get(
             "https://api.coingecko.com/api/v3/simple/price",
-            params={"ids": "bitcoin,ethereum,tether",
+            params={"ids": "bitcoin,ethereum,cardano,dogecoin,solana,tether",
                    "vs_currencies": "usd", "include_24hr_change": "true"},
-            timeout=5  # 缩短超时到 5 秒
+            timeout=10
         )
         if resp.status_code == 200:
             for coin_id, info in resp.json().items():
