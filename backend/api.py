@@ -16,8 +16,9 @@ if str(backend_dir) not in sys.path:
 # Vercel 环境检测
 IS_VERCEL = os.getenv("VERCEL") == "1"
 
-# 数据库 URL - 直接从环境变量读取
-DATABASE_URL = os.getenv("DATABASE_URL")
+# 数据库 URL - 优先使用 DATABASE_PUBLIC_URL (Railway PostgreSQL 公共连接)
+# 如果没有，则使用 DATABASE_URL
+DATABASE_URL = os.getenv("DATABASE_PUBLIC_URL") or os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     raise RuntimeError("DATABASE_URL environment variable is required")
 print(f"[DEBUG] DATABASE_URL configured (length: {len(DATABASE_URL)})", file=sys.stderr)
