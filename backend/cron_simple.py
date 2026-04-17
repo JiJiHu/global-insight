@@ -60,7 +60,7 @@ def fetch_market_data():
             resp = requests.get(
                 f"https://finnhub.io/api/v1/quote",
                 params={"symbol": symbol, "token": FINNHUB_API_KEY},
-                timeout=3
+                timeout=5
             )
             if resp.status_code == 200:
                 data = resp.json()
@@ -68,10 +68,6 @@ def fetch_market_data():
                     cur.execute("""
                         INSERT INTO market_data (symbol, type, price, change_percent, volume, timestamp)
                         VALUES (%s, 'stock', %s, %s, %s, NOW())
-                        ON CONFLICT (symbol, type, timestamp) DO UPDATE SET
-                            price = EXCLUDED.price,
-                            change_percent = EXCLUDED.change_percent,
-                            volume = EXCLUDED.volume
                     """, (symbol, data['c'], data['dp'], data.get('v', 0)))
                     count += 1
                     print(f"    ✅ {symbol}: ${data['c']} ({data['dp']:+.2f}%)")
@@ -95,9 +91,6 @@ def fetch_market_data():
                 cur.execute("""
                     INSERT INTO market_data (symbol, type, price, change_percent, volume, timestamp)
                     VALUES (%s, 'crypto', %s, %s, 0, NOW())
-                    ON CONFLICT (symbol, type, timestamp) DO UPDATE SET
-                        price = EXCLUDED.price,
-                        change_percent = EXCLUDED.change_percent
                 """, (symbol, info['usd'], info.get('usd_24h_change', 0)))
                 count += 1
                 print(f"    ✅ {symbol}: ${info['usd']:,.2f} ({info.get('usd_24h_change', 0):+.2f}%)")
@@ -161,7 +154,10 @@ def fetch_news():
     for name, url in rss_sources.items():
         print(f"  📡 {name} (5 条)...")
         try:
-            feed = feedparser.parse(url, timeout=3)  # 缩短超时
+            # feedparser 不支持 timeout 参数，需要使用其他方式实现超时
+            import socket
+            socket.setdefaulttimeout(3)
+            feed = feedparser.parse(url)
             if feed.entries:
                 rss_count = 0
                 for entry in feed.entries[:5]:  # 减少到 5 条
@@ -191,10 +187,6 @@ def fetch_news():
                 cur.execute("""
                     INSERT INTO news (title, content, source, url, created_at)
                     VALUES (%s, %s, %s, %s, %s)
-                    ON CONFLICT (url) DO UPDATE SET
-                        title = EXCLUDED.title,
-                        content = EXCLUDED.content,
-                        source = EXCLUDED.source
                 """, item)
                 count += 1
             except:
