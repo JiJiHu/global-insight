@@ -182,15 +182,16 @@ def fetch_news():
     # 批量插入
     if news_list:
         print(f"  📦 插入数据库 ({len(news_list)} 条)...")
-        for item in news_list:
+        for i, item in enumerate(news_list):
             try:
                 cur.execute("""
                     INSERT INTO news (title, content, source, url, created_at)
                     VALUES (%s, %s, %s, %s, %s)
                 """, item)
                 count += 1
-            except:
-                pass
+            except Exception as e:
+                print(f"    ⚠️ 第 {i+1} 条插入失败：{e}")
+                print(f"       title: {item[0][:50]}...")
         conn.commit()
         print(f"  ✅ 数据库：{count} 条")
     
