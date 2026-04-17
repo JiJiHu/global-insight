@@ -21,8 +21,8 @@ signal.alarm(180)  # 3 分钟超时
 # 北京时间 (UTC+8)
 BEIJING_TZ = timezone(timedelta(hours=8))
 
-# 数据库配置
-DATABASE_URL = os.getenv("DATABASE_URL")
+# 数据库配置 - 优先使用 DATABASE_PUBLIC_URL (Railway PostgreSQL 公共连接)
+DATABASE_URL = os.getenv("DATABASE_PUBLIC_URL") or os.getenv("DATABASE_URL")
 FINNHUB_API_KEY = "d6l40k1r01qptf3ons10d6l40k1r01qptf3ons1g"
 
 print(f"[{datetime.now(BEIJING_TZ)}] Cron 任务启动...")
