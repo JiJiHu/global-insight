@@ -153,15 +153,16 @@ def fetch_news():
     except Exception as e:
         print(f"  ❌ Finnhub 失败：{e}")
     
-    # 2. RSS 源（只抓 1 个源，每个最多 5 条）
+    # 2. RSS 源（每个最多 10 条）
     rss_sources = {
         '中国新闻网财经': 'https://www.chinanews.com.cn/rss/finance.xml',
+        'Bloomberg': 'https://feeds.bloomberg.com/markets/news.rss',
     }
     
     for name, url in rss_sources.items():
         try:
-            feed = feedparser.parse(url, timeout=5)  # 缩短超时
-            for entry in feed.entries[:5]:  # 只取前 5 条
+            feed = feedparser.parse(url, timeout=10)  # 保持 10 秒超时
+            for entry in feed.entries[:10]:  # 恢复 10 条
                 title = entry.title[:500]
                 summary = entry.get('description', '')[:2000] or title
                 link = entry.get('link', '')[:500]
