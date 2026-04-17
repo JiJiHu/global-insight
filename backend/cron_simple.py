@@ -111,7 +111,7 @@ def fetch_news():
     cur = conn.cursor()
     count = 0
     
-    # 1. Finnhub API (最多 15 条)
+    # 1. Finnhub API (最多 30 条)
     print(f"  📡 请求 Finnhub API...")
     try:
         from datetime import timedelta
@@ -121,13 +121,13 @@ def fetch_news():
             'from': int((datetime.now() - timedelta(days=1)).timestamp()),
             'to': int(datetime.now().timestamp())
         }
-        resp = requests.get('https://finnhub.io/api/v1/news', params=params, timeout=5)  # 缩短超时
+        resp = requests.get('https://finnhub.io/api/v1/news', params=params, timeout=10)
         print(f"  Finnhub 响应状态码：{resp.status_code}")
         if resp.status_code == 200:
             data = resp.json()
             print(f"  Finnhub 返回数据：{len(data) if isinstance(data, list) else '非列表'} 条")
             if isinstance(data, list):
-                for item in data[:15]:  # 只取前 15 条
+                for item in data[:30]:  # 取前 30 条
                     title = item.get('headline', '')[:500]
                     if not title:
                         continue
