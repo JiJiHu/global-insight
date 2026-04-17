@@ -8,8 +8,8 @@ healthcheckTimeout = 100
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 3
 
-# Cron 定时任务 - 通过环境变量触发 cron 模式
+# Cron 定时任务 - 使用 heredoc 或正确的方式
 [[crons]]
 name = "data-fetcher"
 schedule = "0 */2 * * *"
-command = "SERVICE_TYPE=cron ./start.sh"
+command = "bash -c 'SERVICE_TYPE=cron ./start.sh'"
