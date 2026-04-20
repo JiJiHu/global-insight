@@ -204,7 +204,7 @@ def fetch_news():
         except Exception as e:
             print(f"  ❌ {name}: {e}")
     
-    # 批量插入
+    # 批量插入 - 使用 ON CONFLICT 跳过重复
     if news_list:
         print(f"  📦 插入数据库 ({len(news_list)} 条)...")
         for i, item in enumerate(news_list):
@@ -212,13 +212,17 @@ def fetch_news():
                 cur.execute("""
                     INSERT INTO news (title, content, source, url, created_at)
                     VALUES (%s, %s, %s, %s, %s)
+                    ON CONFLICT (url) DO NOTHING
                 """, item)
-                count += 1
+                if cur.rowcount > 0:
+                    count += 1
+                else:
+                    print(f"    ⏭️ 第 {i+1} 条跳过（重复 URL）")
             except Exception as e:
-                print(f"    ⚠️ 第 {i+1} 条插入失败：{e}")
+                print(f"    ❌ 第 {i+1} 条插入失败：{e}")
                 print(f"       title: {item[0][:50]}...")
         conn.commit()
-        print(f"  ✅ 数据库：{count} 条")
+        print(f"  ✅ 数据库：{count} 条新增"
     
     cur.close()
     conn.close()
