@@ -58,6 +58,20 @@ def ensure_tables(conn):
                 created_at TIMESTAMP DEFAULT NOW()
             )
         """)
+        
+        # 创建 market_data 表（如果不存在）
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS market_data (
+                id SERIAL PRIMARY KEY,
+                symbol VARCHAR(50) NOT NULL,
+                type VARCHAR(20) NOT NULL,
+                price DECIMAL(20, 8) NOT NULL,
+                change_percent DECIMAL(10, 4),
+                volume BIGINT DEFAULT 0,
+                timestamp TIMESTAMP DEFAULT NOW()
+            )
+        """)
+        
         conn.commit()
         print("  ✅ 数据库表已确认")
     except Exception as e:
