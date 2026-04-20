@@ -222,7 +222,7 @@ def fetch_news():
                 print(f"    ❌ 第 {i+1} 条插入失败：{e}")
                 print(f"       title: {item[0][:50]}...")
         conn.commit()
-        print(f"  ✅ 数据库：{count} 条新增"
+        print(f"  ✅ 数据库：{count} 条新增")
     
     cur.close()
     conn.close()
