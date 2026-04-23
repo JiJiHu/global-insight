@@ -229,12 +229,11 @@ def fetch_news():
     rss_sources = {
         # 中文源
         '中国新闻网财经': 'https://www.chinanews.com.cn/rss/finance.xml',
-        '新浪财经': 'https://finance.sina.com.cn/rss/rollnews.xml',
         # 国际源
         'CNBC Top News': 'https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=10001147',
         'MarketWatch': 'https://feeds.marketwatch.com/marketwatch/topstories/',
-        'Yahoo Finance': 'https://finance.yahoo.com/news/rssindex',
-        'Financial Times': 'https://www.ft.com/?format=rss',
+        'Seeking Alpha': 'https://seekingalpha.com/feed.xml',
+        'Benzinga': 'https://www.benzinga.com/news/feed',
     }
     
     rss_inserted = 0
