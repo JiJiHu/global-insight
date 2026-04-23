@@ -8,8 +8,21 @@ healthcheckTimeout = 100
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 3
 
-# Cron 定时任务 - 使用 heredoc 或正确的方式
+# Cron 定时任务 - 新闻和市场数据抓取
+# 每 30 分钟执行一次，确保新闻及时更新
 [[crons]]
-name = "data-fetcher"
-schedule = "0 */2 * * *"
-command = "bash -c 'SERVICE_TYPE=cron ./start.sh'"
+name = "news-fetcher"
+schedule = "*/30 * * * *"
+command = "bash -c 'SERVICE_TYPE=cron python backend/cron_tasks.py fetch-news'"
+
+# 每小时抓取市场数据
+[[crons]]
+name = "market-fetcher"
+schedule = "0 * * * *"
+command = "bash -c 'SERVICE_TYPE=cron python backend/cron_tasks.py fetch-market'"
+
+# 每 6 小时生成 AI 洞察和知识图谱
+[[crons]]
+name = "ai-tasks"
+schedule = "0 */6 * * *"
+command = "bash -c 'SERVICE_TYPE=cron python backend/cron_tasks.py generate-insights'"

@@ -170,47 +170,58 @@ def fetch_news():
     
     FINNHUB_API_KEY = "d6l40k1r01qptf3ons10d6l40k1r01qptf3ons1g"
     total = 0
+    inserted = 0
     session = Session()
     
-    # 1. Finnhub API (Reuters, CNBC, Bloomberg)
+    # 1. Finnhub API (Reuters, CNBC, Bloomberg) - 获取最近 24 小时新闻
     print("\n📰 Finnhub API...")
     try:
         params = {
             'token': FINNHUB_API_KEY,
             'category': 'general',
-            'from': int((datetime.now() - timedelta(days=3)).timestamp()),
+            'from': int((datetime.now() - timedelta(hours=24)).timestamp()),
             'to': int(datetime.now().timestamp())
         }
         response = requests.get('https://finnhub.io/api/v1/news', params=params, timeout=15)
-        data = response.json()
-        print(f"  获取到 {len(data)} 条")
-        
-        for item in data[:50]:
-            title = item.get('headline', '')
-            summary = item.get('summary', '') or title
-            url = item.get('url', '')
-            published = item.get('datetime', 0)
-            source = item.get('source', 'Finnhub')
+        if response.status_code == 200:
+            data = response.json()
+            print(f"  获取到 {len(data)} 条")
             
-            if not title:
-                continue
-            
-            try:
-                session.execute(text("""
-                    INSERT INTO news (title, content, source, url, created_at)
-                    VALUES (:title, :content, :source, :url, :created_at)
-                """), {
-                    'title': title[:500],
-                    'content': summary[:2000],
-                    'source': source,
-                    'url': url[:500],
-                    'created_at': datetime.fromtimestamp(published, tz=timezone.utc)
-                })
+            for item in data[:50]:
+                title = item.get('headline', '')
+                summary = item.get('summary', '') or title
+                url = item.get('url', '')
+                published = item.get('datetime', 0)
+                source = item.get('source', 'Finnhub')
+                
+                if not title:
+                    continue
+                
                 total += 1
-            except:
-                pass
-        
-        print(f"  ✅ 插入 {min(len(data), 50)} 条")
+                try:
+                    # 先检查是否已存在
+                    existing = session.execute(text("""
+                        SELECT id FROM news WHERE url = :url LIMIT 1
+                    """), {'url': url[:500]}).fetchone()
+                    
+                    if not existing:
+                        session.execute(text("""
+                            INSERT INTO news (title, content, source, url, created_at)
+                            VALUES (:title, :content, :source, :url, :created_at)
+                        """), {
+                            'title': title[:500],
+                            'content': summary[:2000],
+                            'source': source,
+                            'url': url[:500],
+                            'created_at': datetime.fromtimestamp(published, tz=timezone.utc)
+                        })
+                        inserted += 1
+                except Exception as e:
+                    print(f"    ⚠️ 插入失败：{e}")
+            
+            print(f"  ✅ 新增 {inserted} 条 (共 {total} 条)")
+        else:
+            print(f"  ❌ API 返回错误：{response.status_code}")
     except Exception as e:
         print(f"  ❌ Finnhub 失败：{e}")
     
@@ -223,15 +234,17 @@ def fetch_news():
         'GitHub': 'https://github.blog/feed/',
     }
     
+    rss_inserted = 0
     for name, url in rss_sources.items():
         print(f"\n📰 {name}...")
         try:
-            feed = feedparser.parse(url)
-            print(f"  获取到 {len(feed.entries)} 条")
+            feed = feedparser.parse(url, timeout=10)
+            entries_count = len(feed.entries)
+            print(f"  获取到 {entries_count} 条")
             
             for entry in feed.entries[:20]:
                 title = entry.title[:500]
-                summary = entry.get('description', entry.get('summary', ''))[:2000]
+                summary = entry.get('description', entry.get('summary', ''))[:2000] or title
                 link = entry.get('link', '')[:500]
                 pub_date = entry.get('published', '')
                 
@@ -241,22 +254,29 @@ def fetch_news():
                 except:
                     ts = datetime.now(timezone.utc).isoformat()
                 
+                total += 1
                 try:
-                    session.execute(text("""
-                        INSERT INTO news (title, content, source, url, created_at)
-                        VALUES (:title, :content, :source, :url, :created_at)
-                    """), {
-                        'title': title,
-                        'content': summary,
-                        'source': name,
-                        'url': link,
-                        'created_at': ts
-                    })
-                    total += 1
-                except:
-                    pass
+                    # 检查是否已存在
+                    existing = session.execute(text("""
+                        SELECT id FROM news WHERE url = :url LIMIT 1
+                    """), {'url': link}).fetchone()
+                    
+                    if not existing:
+                        session.execute(text("""
+                            INSERT INTO news (title, content, source, url, created_at)
+                            VALUES (:title, :content, :source, :url, :created_at)
+                        """), {
+                            'title': title,
+                            'content': summary,
+                            'source': name,
+                            'url': link,
+                            'created_at': ts
+                        })
+                        rss_inserted += 1
+                except Exception as e:
+                    print(f"    ⚠️ 插入失败：{e}")
             
-            print(f"  ✅ 插入 {min(len(feed.entries), 20)} 条")
+            print(f"  ✅ 新增 {rss_inserted} 条 (共 {total} 条)")
         except Exception as e:
             print(f"  ❌ {name} 失败：{e}")
     
