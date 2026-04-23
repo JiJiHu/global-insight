@@ -5,7 +5,7 @@ from typing import List, Optional
 import json
 import os
 import sys
-from datetime import datetime, timezone, timedelta
+from datetime import timezone, timedelta
 from pathlib import Path
 
 # 添加 backend 目录到 Python 路径（解决 Railway 部署导入问题）
@@ -136,7 +136,6 @@ def get_all_market(type: str = None):
         
         # 北京时间时区 (UTC+8)
         bj_tz = timezone(timedelta(hours=8))
-        now = datetime.now(bj_tz)
         
         return [
             {
@@ -144,7 +143,7 @@ def get_all_market(type: str = None):
                 "price": float(r[1]),
                 "change_percent": float(r[2]) if r[2] else 0,
                 "volume": int(r[3]) if r[3] else 0,
-                "timestamp": r[4].astimezone(bj_tz).isoformat() if r[4] else now.isoformat(),
+                "timestamp": r[4].astimezone(bj_tz).isoformat() if r[4] else None,
                 "type": r[5] if len(r) > 5 else 'stock'
             }
             for r in results
