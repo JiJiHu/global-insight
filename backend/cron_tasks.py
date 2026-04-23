@@ -333,61 +333,6 @@ def fetch_news():
         session.close()
     
     return total
-        
-        # 保存到数据库
-        session = Session()
-        saved = 0
-        
-        for item in data[:30]:  # 最多保存 30 条
-            title = item.get('headline', '')
-            summary = item.get('summary', '') or title
-            url = item.get('url', '')
-            published = item.get('datetime', 0)
-            source = item.get('source', 'Finnhub')
-            
-            if not title:
-                continue
-            
-            # 简单情感分析
-            sentiment_score = 0.0
-            sentiment_label = '中性'
-            text_lower = (title + ' ' + summary).lower()
-            if any(word in text_lower for word in ['rise', 'gain', 'grow', 'surge', 'beat', 'strong', 'positive', 'up']):
-                sentiment_score = 0.6
-                sentiment_label = '积极'
-            elif any(word in text_lower for word in ['fall', 'drop', 'decline', 'crash', 'miss', 'weak', 'negative', 'down']):
-                sentiment_score = -0.6
-                sentiment_label = '消极'
-            
-            # 插入数据库
-            from sqlalchemy import text
-            result = session.execute(text("""
-                INSERT INTO news (title, content, source, sentiment_label, sentiment_score, url, created_at)
-                VALUES (:title, :content, :source, :sentiment_label, :sentiment_score, :url, :created_at)
-                ON CONFLICT (title) DO NOTHING
-            """), {
-                'title': title,
-                'content': summary,
-                'source': source,
-                'sentiment_label': sentiment_label,
-                'sentiment_score': sentiment_score,
-                'url': url,
-                'created_at': datetime.fromtimestamp(published, tz=BEIJING_TZ)
-            })
-            if result.rowcount > 0:
-                saved += 1
-        
-        session.commit()
-        session.close()
-        
-        print(f"  ✅ 成功保存 {saved} 条新闻")
-        return saved
-        
-    except Exception as e:
-        print(f"  ❌ 新闻抓取失败：{e}")
-        import traceback
-        traceback.print_exc()
-        return 0
 
 def generate_insights():
     """生成 AI 洞察（基于市场数据和新闻）"""
