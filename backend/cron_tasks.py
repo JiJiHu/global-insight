@@ -225,13 +225,16 @@ def fetch_news():
     except Exception as e:
         print(f"  ❌ Finnhub 失败：{e}")
     
-    # 2. RSS 新闻源
+    # 2. RSS 新闻源 - 使用可靠的 RSS 源
     rss_sources = {
+        # 中文源
         '中国新闻网财经': 'https://www.chinanews.com.cn/rss/finance.xml',
-        'Bloomberg': 'https://feeds.bloomberg.com/markets/news.rss',
-        'Investing.com': 'https://cn.investing.com/rss/news.rss',
+        '新浪财经': 'https://finance.sina.com.cn/rss/rollnews.xml',
+        # 国际源
         'CNBC Top News': 'https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=10001147',
-        'GitHub': 'https://github.blog/feed/',
+        'MarketWatch': 'https://feeds.marketwatch.com/marketwatch/topstories/',
+        'Yahoo Finance': 'https://finance.yahoo.com/news/rssindex',
+        'Financial Times': 'https://www.ft.com/?format=rss',
     }
     
     rss_inserted = 0
@@ -280,14 +283,18 @@ def fetch_news():
         except Exception as e:
             print(f"  ❌ {name} 失败：{e}")
     
-    # 3. Twitter (通过 Nitter)
-    twitter_accounts = ['Reuters', 'Bloomberg', 'WSJ', 'CNBC', 'FinancialTimes']
+    # 3. Twitter/X (通过 RSS - 备用方案，因为 Nitter 不稳定)
+    # 注意：Nitter 服务经常不可用，这部分可能失败
+    twitter_accounts = ['Reuters', 'CNBC']
+    twitter_inserted = 0
     for account in twitter_accounts:
         print(f"\n🐦 Twitter: @{account}...")
         try:
+            # 使用替代方案：RSS.app 或其他 Twitter RSS 服务
             rss_url = f'https://nitter.net/{account}/rss'
-            feed = feedparser.parse(rss_url)
-            print(f"  获取到 {len(feed.entries)} 条")
+            feed = feedparser.parse(rss_url, timeout=8)
+            entries_count = len(feed.entries)
+            print(f"  获取到 {entries_count} 条")
             
             for entry in feed.entries[:10]:
                 title = entry.title[:500]
@@ -301,24 +308,30 @@ def fetch_news():
                     ts = datetime.now(timezone.utc).isoformat()
                 
                 source = f'Twitter-{account}'
+                total += 1
                 try:
-                    session.execute(text("""
-                        INSERT INTO news (title, content, source, url, created_at)
-                        VALUES (:title, :content, :source, :url, :created_at)
-                    """), {
-                        'title': title,
-                        'content': '',
-                        'source': source,
-                        'url': link,
-                        'created_at': ts
-                    })
-                    total += 1
-                except:
-                    pass
+                    existing = session.execute(text("""
+                        SELECT id FROM news WHERE url = :url LIMIT 1
+                    """), {'url': link}).fetchone()
+                    
+                    if not existing:
+                        session.execute(text("""
+                            INSERT INTO news (title, content, source, url, created_at)
+                            VALUES (:title, :content, :source, :url, :created_at)
+                        """), {
+                            'title': title,
+                            'content': '',
+                            'source': source,
+                            'url': link,
+                            'created_at': ts
+                        })
+                        twitter_inserted += 1
+                except Exception as e:
+                    print(f"    ⚠️ 插入失败：{e}")
             
-            print(f"  ✅ 插入 {min(len(feed.entries), 10)} 条")
+            print(f"  ✅ 新增 {twitter_inserted} 条")
         except Exception as e:
-            print(f"  ❌ @{account} 失败：{e}")
+            print(f"  ❌ @{account} 失败：{e} (Nitter 服务可能不可用)")
     
     # 提交所有
     try:
