@@ -8,6 +8,10 @@
   ],
   "routes": [
     {
+      "src": "/api/v1/(.*)",
+      "dest": "https://global-insight-production.up.railway.app/api/v1/$1"
+    },
+    {
       "src": "/api/(.*)",
       "dest": "https://global-insight-production.up.railway.app/api/v1/$1"
     },
