@@ -241,7 +241,9 @@ def fetch_news():
     for name, url in rss_sources.items():
         print(f"\n📰 {name}...")
         try:
-            feed = feedparser.parse(url, timeout=10)
+            # 使用 requests 设置超时，然后传给 feedparser
+            response = requests.get(url, timeout=10)
+            feed = feedparser.parse(response.content)
             entries_count = len(feed.entries)
             print(f"  获取到 {entries_count} 条")
             
@@ -290,9 +292,9 @@ def fetch_news():
     for account in twitter_accounts:
         print(f"\n🐦 Twitter: @{account}...")
         try:
-            # 使用替代方案：RSS.app 或其他 Twitter RSS 服务
             rss_url = f'https://nitter.net/{account}/rss'
-            feed = feedparser.parse(rss_url, timeout=8)
+            response = requests.get(rss_url, timeout=8)
+            feed = feedparser.parse(response.content)
             entries_count = len(feed.entries)
             print(f"  获取到 {entries_count} 条")
             
