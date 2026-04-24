@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>一起看世界 | Global Insight - 全球视野投资平台</title>
+    
+    <!-- Element Plus CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/element-plus@2.5.6/dist/index.css" />
+    
+    <style>
+        [v-cloak] {
+            display: none;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #7e22ce 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        /* 地球背景效果 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(100, 180, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(180, 100, 255, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .dashboard {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+            border-radius: 16px;
+            padding: 32px 40px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: '🌍';
+            position: absolute;
+            right: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 80px;
+            opacity: 0.1;
+            filter: grayscale(30%);
+        }
+        
+        .header h1 {
+            background: linear-gradient(135deg, #1e3c72 0%, #7e22ce 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+        
+        .header p {
+            color: #64748b;
+            font-size: 16px;
+            font-weight: 500;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-card .label {
+            color: #718096;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+        
+        .stat-card .value {
+            color: #1a202c;
+            font-size: 28px;
+            font-weight: 700;
+        }
+        
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a202c;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: space-between;
+        }
+        
+        .market-table {
+            width: 100%;
+        }
+        
+        .price-up {
+            color: #10b981;
+            font-weight: 600;
+        }
+        
+        .price-down {
+            color: #ef4444;
+            font-weight: 600;
+        }
+        
+        .news-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .news-item:last-child {
+            border-bottom: none;
+        }
+        
+        .news-title {
+            font-size: 14px;
+            color: #1a202c;
+            margin-bottom: 4px;
+            line-height: 1.5;
+        }
+        
+        .news-meta {
+            font-size: 12px;
+            color: #718096;
+        }
+        
+        .sentiment-positive {
+            color: #10b981;
+        }
+        
+        .sentiment-negative {
+            color: #ef4444;
+        }
+        
+        .sentiment-neutral {
+            color: #f59e0b;
+        }
+        
+        .news-tabs {
+            margin-top: 16px;
+        }
+        
+        .news-tab-buttons {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .news-tab-buttons button {
+            padding: 6px 16px;
+            border: 1px solid #dcdfe6;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .news-tab-buttons button:hover {
+            color: #409eff;
+            border-color: #409eff;
+        }
+        
+        .news-tab-buttons button.active {
+            background: #409eff;
+            color: white;
+            border-color: #409eff;
+        }
+        
+        #graph-container {
+            width: 100%;
+            height: 500px;
+        }
+        
+        .graph-controls {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+        }
+        
+        .refresh-btn {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 1000;
+        }
+        
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        
+        /* 节点详情对话框样式 */
+        .node-detail-dialog {
+            max-width: 600px;
+        }
+        
+        .node-detail-dialog .el-message-box__content {
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        
+        /* 图谱控制按钮 */
+        .graph-controls {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        /* 响应式布局优化 */
+        @media (max-width: 768px) {
+            .graph-controls {
+                flex-direction: column;
+            }
+            
+            .graph-controls .el-button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="dashboard">
+            <!-- 头部 -->
+            <div class="header">
+                <h1>🌍 一起看世界 | Global Insight</h1>
+                <p>洞察全球市场 · 把握投资机遇 · 智见未来</p>
+                <div style="margin-top: 12px; display: flex; gap: 12px; flex-wrap: wrap;">
+                    <el-tag size="small" effect="plain">📊 全球市场</el-tag>
+                    <el-tag size="small" effect="plain">🤖 AI 洞察</el-tag>
+                    <el-tag size="small" effect="plain">🕸️ 知识图谱</el-tag>
+                    <el-tag size="small" effect="plain">📰 实时新闻</el-tag>
+                </div>
+            </div>
+            
+            <!-- 统计卡片 -->
+            <div class="stats-grid">
+                <div class="stat-card" style="background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);">
+                    <div class="label">📊 股票数据</div>
+                    <div class="value" style="color: #1e40af;">{{ stats.stock_count || 0 }}</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #ffffff 0%, #fef3c7 100%);">
+                    <div class="label">🟡 黄金数据</div>
+                    <div class="value" style="color: #b45309;">{{ stats.gold_count || 0 }}</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #ffffff 0%, #fed7aa 100%);">
+                    <div class="label">🛢️ 石油数据</div>
+                    <div class="value" style="color: #c2410c;">{{ stats.oil_count || 0 }}</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 100%);">
+                    <div class="label">₿ 加密货币</div>
+                    <div class="value" style="color: #4338ca;">{{ stats.crypto_count || 0 }}</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #ffffff 0%, #f3e8ff 100%);">
+                    <div class="label">📰 新闻数量</div>
+                    <div class="value" style="color: #7e22ce;">{{ stats.news_count || 0 }}</div>
+                </div>
+            </div>
+            
+            <!-- 主要内容 -->
+            <div class="main-grid">
+                <!-- 左侧：行情数据 -->
+                <div class="card">
+                    <div class="card-title">
+                        <span>💹</span> 实时行情
+                        <el-radio-group v-model="marketType" size="small" style="margin-left: 16px;" @change="fetchMarketData">
+                            <el-radio-button label="">全部</el-radio-button>
+                            <el-radio-button label="stock">股票</el-radio-button>
+                            <el-radio-button label="gold">黄金</el-radio-button>
+                            <el-radio-button label="oil">石油</el-radio-button>
+                            <el-radio-button label="crypto">加密</el-radio-button>
+                        </el-radio-group>
+                    </div>
+                    <el-table :data="marketData" stripe style="width: 100%" v-loading="loading.market" :max-height="400">
+                        <el-table-column prop="symbol" label="代码" width="100"></el-table-column>
+                        <el-table-column label="类型" width="80">
+                            <template #default="{ row }">
+                                <el-tag size="small" :type="row.type === 'gold' ? 'warning' : row.type === 'oil' ? 'danger' : 'info'">
+                                    {{ row.type === 'stock' ? '股票' : row.type === 'gold' ? '黄金' : row.type === 'oil' ? '石油' : row.type === 'crypto' ? '加密' : row.type }}
+                                </el-tag>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="价格" width="120">
+                            <template #default="{ row }">
+                                ${{ formatPrice(row.price) }}
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="涨跌幅" width="100">
+                            <template #default="{ row }">
+                                <span :class="row.change_percent >= 0 ? 'price-up' : 'price-down'">
+                                    {{ row.change_percent >= 0 ? '+' : '' }}{{ row.change_percent.toFixed(2) }}%
+                                </span>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="更新时间" width="150">
+                            <template #default="{ row }">
+                                {{ formatTime(row.timestamp) }}
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </div>
+                
+                <!-- 右侧：AI 洞察 -->
+                <div class="card">
+                    <div class="card-title">
+                        <span>🧠</span> AI 洞察
+                    </div>
+                    <div v-loading="loading.insights">
+                        <div v-if="insights.length === 0" class="loading">
+                            暂无洞察数据
+                        </div>
+                        <div v-else>
+                            <div v-for="insight in insights" :key="insight.id" 
+                                 class="news-item" 
+                                 @click.stop="showInsightDetail(insight)"
+                                 style="cursor: pointer; transition: all 0.2s;"
+                                 @mouseenter="$event.currentTarget.style.background = '#f8fafc'"
+                                 @mouseleave="$event.currentTarget.style.background = ''">
+                                <div class="news-title" style="color: #1e40af;">{{ insight.title }}</div>
+                                <div class="news-meta">
+                                    <span :class="(getAnalysisTypeLabel(insight.analysis_type) || '').includes('市场') ? 'sentiment-neutral' : 'sentiment-positive'">
+                                        {{ getAnalysisTypeLabel(insight.analysis_type) }}
+                                    </span>
+                                    <span v-if="insight.source" style="margin: 0 8px; color: #718096;">| 来源：{{ insight.source }}</span>
+                                    · 置信度：{{ (insight.confidence_score * 100).toFixed(0) }}%
+                                    <span style="color: #667eea; margin-left: 8px; cursor: pointer;" @click.stop="showInsightDetail(insight)">📖 点击查看详情</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 知识图谱 -->
+            <div class="card full-width">
+                <div class="card-title">
+                    <span>🕸️</span> 金融知识图谱
+                    <div class="graph-controls">
+                        <el-button size="small" @click="toggleGraphLayout('force')">力导向图</el-button>
+                        <el-button size="small" @click="toggleGraphLayout('circular')">环形布局</el-button>
+                        <el-button size="small" @click="highlightHotStocks"> 🔥 热门股票</el-button>
+                    </div>
+                </div>
+                <div v-loading="loading.graph">
+                    <div id="graph-container"></div>
+                </div>
+            </div>
+            
+            <!-- 新闻列表 -->
+            <div class="card full-width">
+                <div class="card-title">
+                    <span>📰</span> 最新新闻
+                </div>
+                <div v-loading="loading.news">
+                    <div class="news-tabs">
+                        <div class="news-tab-buttons">
+                            <button :class="{ active: newsSource === 'all' }" @click="handleNewsSourceChange('all')">全部</button>
+                            <button :class="{ active: newsSource === 'Finnhub' }" @click="handleNewsSourceChange('Finnhub')">Finnhub</button>
+                            <button :class="{ active: newsSource === 'Twitter' }" @click="handleNewsSourceChange('Twitter')">Twitter/X</button>
+                            <button :class="{ active: newsSource === '中国新闻网财经' }" @click="handleNewsSourceChange('中国新闻网财经')">中新网财经</button>
+                            <button :class="{ active: newsSource === 'Bloomberg' }" @click="handleNewsSourceChange('Bloomberg')">Bloomberg</button>
+                            <button :class="{ active: newsSource === 'CNBC' }" @click="handleNewsSourceChange('CNBC')">CNBC</button>
+                            <button :class="{ active: newsSource === 'Reuters' }" @click="handleNewsSourceChange('Reuters')">Reuters</button>
+                            <button :class="{ active: newsSource === 'Investing' }" @click="handleNewsSourceChange('Investing')">Investing.com</button>
+                            <button :class="{ active: newsSource === 'GitHub' }" @click="handleNewsSourceChange('GitHub')">GitHub</button>
+                        </div>
+                        <el-table :data="filteredNewsList" stripe style="width: 100%" :max-height="400" empty-text="暂无新闻数据">
+                            <el-table-column label="新闻标题" min-width="300">
+                                <template #default="{ row }">
+                                    <el-link type="primary" @click="showNewsDetail(row)">{{ row.title }}</el-link>
+                                </template>
+                            </el-table-column>
+                            <el-table-column prop="source" label="来源" width="150">
+                                <template #default="{ row }">
+                                    <el-tag size="small" :type="getSourceTagType(row.source)">{{ row.source }}</el-tag>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="情感" width="100">
+                                <template #default="{ row }">
+                                    <el-tag :type="getSentimentTag(row.sentiment_label)" size="small">
+                                        {{ getSentimentLabel(row.sentiment_label) }}
+                                    </el-tag>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="时间" width="180">
+                                <template #default="{ row }">
+                                    {{ formatTime(row.published_at) }}
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 刷新按钮 -->
+            <el-button 
+                class="refresh-btn" 
+                type="primary" 
+                circle 
+                size="large"
+                @click="refreshAll"
+                :loading="refreshing"
+            >
+                <el-icon><Refresh /></el-icon>
+            </el-button>
+        </div>
+    </div>
+    
+    <!-- Vue 3 -->
+    <script src="https://unpkg.com/vue@3.4.19/dist/vue.global.prod.js"></script>
+    <!-- Element Plus -->
+    <script src="https://unpkg.com/element-plus@2.5.6/dist/index.full.min.js"></script>
+    <!-- Element Plus Icons -->
+    <script src="https://unpkg.com/@element-plus/icons-vue@2.3.1/dist/index.global.min.js"></script>
+    <!-- ECharts -->
+    <script src="https://unpkg.com/echarts@5.4.3/dist/echarts.min.js"></script>
+    <!-- Cache buster: v20260312-0930 -->
+    
+    <script>
+        const { createApp, ref, onMounted, nextTick, h } = Vue;
+        const computed = Vue.computed;
+        const { ElMessage, ElMessageBox } = ElementPlus;
+        // 注册 Element Plus 图标 (全局变量名为 ElementPlusIcons)
+        const icons = window.ElementPlusIcons || {};
+        const Refresh = icons.Refresh || null;
+        
+        const app = createApp({
+            setup() {
+                // 数据
+                const stats = ref({});
+                const graphStats = ref({ nodes: 0, edges: 0 });
+                const marketData = ref([]);
+                const newsList = ref([]);
+                const insights = ref([]);
+                const graphData = ref({ nodes: [], links: [] });
+                const marketType = ref(''); // 行情类型筛选：stock, gold, oil, crypto
+                const newsSource = ref('all'); // 新闻来源筛选：all, Finnhub, Twitter, 央视网, GitHub
+                const currentPage = ref(1); // 当前页码
+                const hasMoreNews = ref(true); // 是否还有更多数据
+                const loading = ref({
+                    market: false,
+                    news: false,
+                    insights: false,
+                    graph: false
+                });
+                const refreshing = ref(false);
+                let chartInstance = null;
+                
+                // API 基础 URL (Railway 后端)
+                const API_BASE = 'https://global-insight-production.up.railway.app/api/v1';
+                
+                // 初始化图表
+                const initChart = () => {
+                    const container = document.getElementById('graph-container');
+                    if (!container) return;
+                    
+                    if (chartInstance) {
+                        chartInstance.dispose();
+                    }
+                    
+                    chartInstance = echarts.init(container);
+                    
+                    const option = {
+                        tooltip: {
+                            trigger: 'item',
+                            formatter: (params) => {
+                                if (params.dataType === 'node') {
+                                    const data = params.data.data || {};
+                                    let content = `<div style="padding: 8px; max-width: 300px;">`;
+                                    
+                                    // 节点类型图标
+                                    const typeIcons = {
+                                        'stock': '💹',
+                                        'news': '📰',
+                                        'industry': '🏭',
+                                        'theme': '🎯',
+                                        'related_asset': '💰'
+                                    };
+                                    const icon = typeIcons[params.data.type] || '📌';
+                                    
+                                    content += `<h4 style="margin: 0 0 8px 0; font-size: 16px;">${icon} ${params.data.label}</h4>`;
+                                    
+                                    // 股票节点详情
+                                    if (params.data.type === 'stock') {
+                                        if (data.symbol) content += `<div>💹 代码：<strong>${data.symbol}</strong></div>`;
+                                        if (data.price) content += `<div>💰 价格：<strong>$${data.price.toFixed(2)}</strong></div>`;
+                                        if (data.change_percent) {
+                                            const change = data.change_percent >= 0 ? '📈' : '📉';
+                                            const color = data.change_percent >= 0 ? '#10b981' : '#ef4444';
+                                            content += `<div>${change} 涨跌：<strong style="color: ${color}">${data.change_percent >= 0 ? '+' : ''}${data.change_percent.toFixed(2)}%</strong></div>`;
+                                        }
+                                        if (data.volume) content += `<div>📊 成交量：${formatVolume(data.volume)}</div>`;
+                                        if (data.industry) content += `<div>🏭 行业：${data.industry}</div>`;
+                                    }
+                                    
+                                    // 新闻节点详情
+                                    if (params.data.type === 'news') {
+                                        if (data.title) content += `<div style="margin: 8px 0; padding: 8px; background: #f3f4f6; border-radius: 4px;">${data.title}</div>`;
+                                        if (data.sentiment) {
+                                            const sentimentColors = {
+                                                'positive': '🟢 积极',
+                                                'negative': '🔴 消极',
+                                                'neutral': '⚪ 中性'
+                                            };
+                                            content += `<div>情感：${sentimentColors[data.sentiment] || data.sentiment}</div>`;
+                                        }
+                                        if (data.date) content += `<div>📅 日期：${data.date}</div>`;
+                                        if (data.themes && data.themes.length > 0) {
+                                            content += `<div>🎯 主题：${data.themes.join(', ')}</div>`;
+                                        }
+                                    }
+                                    
+                                    // 行业节点详情
+                                    if (params.data.type === 'industry') {
+                                        if (data.stock_count) content += `<div>📊 股票数量：${data.stock_count}</div>`;
+                                    }
+                                    
+                                    // 主题节点详情
+                                    if (params.data.type === 'theme') {
+                                        if (data.impact) content += `<div style="margin: 8px 0; padding: 8px; background: #fef3c7; border-radius: 4px;">💡 ${data.impact}</div>`;
+                                    }
+                                    
+                                    // 相关资产详情
+                                    if (params.data.type === 'related_asset') {
+                                        if (data.symbol) content += `<div>💹 代码：${data.symbol}</div>`;
+                                        if (data.asset_type) {
+                                            const typeNames = {
+                                                'crypto': '加密货币',
+                                                'gold': '黄金',
+                                                'oil': '石油',
+                                                'stock': '股票'
+                                            };
+                                            content += `<div>类型：${typeNames[data.asset_type] || data.asset_type}</div>`;
+                                        }
+                                    }
+                                    
+                                    content += `</div>`;
+                                    return content;
+                                }
+                                return params.data.label || params.name;
+                            }
+                        },
+                        legend: [{
+                            data: ['股票', '新闻', '行业', '主题', '相关资产'],
+                            bottom: 10,
+                            left: 'center',
+                            textStyle: { color: '#666' }
+                        }],
+                        series: [{
+                            type: 'graph',
+                            layout: 'force',
+                            data: graphData.value.nodes.map(node => ({
+                                ...node,
+                                category: {
+                                    'stock': 0,
+                                    'news': 1,
+                                    'industry': 2,
+                                    'theme': 3,
+                                    'source': 1,
+                                    'related_asset': 4
+                                }[node.type] || 0
+                            })),
+                            links: graphData.value.links,
+                            categories: [
+                                { name: '股票', itemStyle: { color: '#667eea' } },
+                                { name: '新闻', itemStyle: { color: '#f59e0b' } },
+                                { name: '行业', itemStyle: { color: '#8b5cf6' } },
+                                { name: '主题', itemStyle: { color: '#ec4899' } },
+                                { name: '相关资产', itemStyle: { color: '#14b8a6' } }
+                            ],
+                            roam: true,
+                            label: {
+                                show: true,
+                                position: 'right',
+                                formatter: '{b}',
+                                fontSize: 10
+                            },
+                            lineStyle: {
+                                color: 'source',
+                                curveness: 0.2,
+                                width: 1.5,
+                                opacity: 0.5
+                            },
+                            edgeSymbol: ['none', 'arrow'],
+                            edgeSymbolSize: 8,
+                            emphasis: {
+                                focus: 'adjacency',
+                                lineStyle: {
+                                    width: 3
+                                }
+                            },
+                            force: {
+                                repulsion: 300,
+                                edgeLength: [80, 200],
+                                gravity: 0.15
+                            }
+                        }]
+                    };
+                    
+                    chartInstance.setOption(option);
+                    
+                    // 点击节点显示详情
+                    chartInstance.on('click', (params) => {
+                        if (params.dataType === 'node') {
+                            showNodeDetail(params.data);
+                        }
+                    });
+                    
+                    // 窗口大小变化时重置
+                    window.addEventListener('resize', () => {
+                        chartInstance && chartInstance.resize();
+                    });
+                };
+                
+                // 显示节点详情对话框
+                const showNodeDetail = (nodeData) => {
+                    const data = nodeData.data || {};
+                    let title = nodeData.label;
+                    let content = '';
+                    
+                    if (nodeData.type === 'stock') {
+                        title = `💹 ${data.symbol || nodeData.label}`;
+                        content = `
+                            <div style="padding: 16px;">
+                                <el-descriptions :column="1" border>
+                                    <el-descriptions-item label="股票代码">${data.symbol}</el-descriptions-item>
+                                    <el-descriptions-item label="当前价格">$${data.price?.toFixed(2) || 'N/A'}</el-descriptions-item>
+                                    <el-descriptions-item label="涨跌幅">
+                                        <el-tag :type="${data.change_percent >= 0 ? 'success' : 'danger'}">
+                                            ${data.change_percent >= 0 ? '+' : ''}${data.change_percent?.toFixed(2) || '0.00'}%
+                                        </el-tag>
+                                    </el-descriptions-item>
+                                    <el-descriptions-item label="成交量">${formatVolume(data.volume || 0)}</el-descriptions-item>
+                                    <el-descriptions-item label="所属行业">${data.industry || '其他'}</el-descriptions-item>
+                                </el-descriptions>
+                                
+                                <div style="margin-top: 16px;">
+                                    <el-button type="primary" size="small" @click="viewStockNews('${data.symbol}')">
+                                        📰 查看相关新闻
+                                    </el-button>
+                                    <el-button type="success" size="small" @click="viewStockInsights('${data.symbol}')">
+                                        💡 查看 AI 洞察
+                                    </el-button>
+                                </div>
+                            </div>
+                        `;
+                    } else if (nodeData.type === 'news') {
+                        title = `📰 新闻详情`;
+                        content = `
+                            <div style="padding: 16px;">
+                                <el-card>
+                                    <h3 style="margin: 0 0 12px 0;">${data.title || 'N/A'}</h3>
+                                    <el-tag :type="getSentimentTag(data.sentiment)" size="small">
+                                        ${getSentimentLabel(data.sentiment)}
+                                    </el-tag>
+                                    <div style="margin-top: 12px; color: #666;">
+                                        <div>📅 日期：${data.date || 'N/A'}</div>
+                                        <div>🎯 主题：${data.themes?.join(', ') || 'N/A'}</div>
+                                    </div>
+                                </el-card>
+                            </div>
+                        `;
+                    } else if (nodeData.type === 'industry') {
+                        title = `🏭 ${data.name || nodeData.label}`;
+                        content = `
+                            <div style="padding: 16px;">
+                                <el-descriptions :column="1" border>
+                                    <el-descriptions-item label="行业名称">${data.name}</el-descriptions-item>
+                                    <el-descriptions-item label="股票数量">${data.stock_count || 0}</el-descriptions-item>
+                                </el-descriptions>
+                                <div style="margin-top: 16px;">
+                                    <el-button type="primary" size="small" @click="viewIndustryStocks('${data.name}')">
+                                        📊 查看行业股票
+                                    </el-button>
+                                </div>
+                            </div>
+                        `;
+                    } else if (nodeData.type === 'theme') {
+                        title = `🎯 ${data.name || nodeData.label}`;
+                        content = `
+                            <div style="padding: 16px;">
+                                <el-alert
+                                    title="主题影响"
+                                    type="info"
+                                    :closable="false"
+                                    show-icon
+                                >
+                                    ${data.impact || '暂无影响说明'}
+                                </el-alert>
+                                <div style="margin-top: 16px;">
+                                    <el-button type="primary" size="small" @click="viewThemeNews('${data.name}')">
+                                        📰 查看相关新闻
+                                    </el-button>
+                                </div>
+                            </div>
+                        `;
+                    } else if (nodeData.type === 'related_asset') {
+                        title = `💰 ${data.label || nodeData.label}`;
+                        content = `
+                            <div style="padding: 16px;">
+                                <el-descriptions :column="1" border>
+                                    <el-descriptions-item label="资产代码">${data.symbol}</el-descriptions-item>
+                                    <el-descriptions-item label="资产类型">${data.asset_type}</el-descriptions-item>
+                                </el-descriptions>
+                            </div>
+                        `;
+                    }
+                    
+                    // 使用 Element Plus 对话框
+                    ElMessageBox.alert(content, title, {
+                        dangerouslyUseHTMLString: true,
+                        confirmButtonText: '关闭',
+                        customClass: 'node-detail-dialog'
+                    });
+                };
+                
+                // 查看股票新闻
+                const viewStockNews = async (symbol) => {
+                    ElMessage.info(`正在加载 ${symbol} 的新闻...`);
+                    // TODO: 实现新闻查询
+                };
+                
+                // 查看股票洞察
+                const viewStockInsights = async (symbol) => {
+                    ElMessage.info(`正在加载 ${symbol} 的洞察...`);
+                    // TODO: 实现洞察查询
+                };
+                
+                // 显示 AI 洞察详情
+                const showInsightDetail = (insight) => {
+                    const categoryLabels = {
+                        'market_summary': '📊 市场总结',
+                        'news_alert': '🔔 新闻提醒',
+                        'opportunity': '✅ 投资机会',
+                        'sector_analysis': '📈 行业分析',
+                        'crypto': '₿ 加密货币',
+                        'risk_warning': '⚠️ 风险提示'
+                    };
+                    
+                    const content = `
+                        <div style="line-height: 1.8; text-align: left;">
+                            <div style="margin-bottom: 16px;">
+                                <span style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px;">
+                                    ${categoryLabels[insight.analysis_type] || insight.analysis_type}
+                                </span>
+                            </div>
+                            <div style="font-size: 16px; color: #1a202c; margin-bottom: 16px;">
+                                ${insight.title}
+                            </div>
+                            <div style="background: #f8fafc; padding: 16px; border-radius: 8px; border-left: 4px solid #667eea;">
+                                ${insight.content || '暂无详细内容'}
+                            </div>
+                            <div style="margin-top: 16px; color: #718096; font-size: 13px;">
+                                <div>🤖 来源：<strong>${insight.source || 'AI'}</strong></div>
+                                <div>置信度：${(insight.confidence_score * 100).toFixed(0)}%</div>
+                                <div>生成时间：${new Date(insight.created_at).toLocaleString('zh-CN')}</div>
+                            </div>
+                            ${insight.url ? `<div style="margin-top: 16px;"><a href="${insight.url}" target="_blank" style="display: inline-block; padding: 8px 16px; background: #667eea; color: white; text-decoration: none; border-radius: 4px;">查看原文 →</a></div>` : ''}
+                        </div>
+                    `;
+                    
+                    ElMessageBox.alert(content, '🧠 AI 洞察详情', {
+                        dangerouslyUseHTMLString: true,
+                        confirmButtonText: '关闭',
+                        customClass: 'node-detail-dialog',
+                        showClose: true
+                    });
+                };
+                
+                // 查看行业股票
+                const viewIndustryStocks = async (industry) => {
+                    ElMessage.info(`正在加载 ${industry} 的股票...`);
+                    // TODO: 实现行业股票查询
+                };
+                
+                // 查看主题新闻
+                const viewThemeNews = async (theme) => {
+                    ElMessage.info(`正在加载 ${theme} 的新闻...`);
+                    // TODO: 实现主题新闻查询
+                };
+                
+                // 获取统计数据
+                const fetchStats = async () => {
+                    try {
+                        const res = await fetch(`${API_BASE}/stats`);
+                        stats.value = await res.json();
+                    } catch (error) {
+                        console.error('获取统计数据失败:', error);
+                    }
+                };
+                
+                // 获取行情数据
+                const fetchMarketData = async () => {
+                    loading.value.market = true;
+                    try {
+                        const url = marketType.value 
+                            ? `${API_BASE}/market?type=${marketType.value}`
+                            : `${API_BASE}/market`;
+                        const res = await fetch(url);
+                        marketData.value = await res.json();
+                    } catch (error) {
+                        console.error('获取行情数据失败:', error);
+                        ElMessage.error('获取行情数据失败');
+                    } finally {
+                        loading.value.market = false;
+                    }
+                };
+                
+                // 获取新闻数据（每个来源最多 100 条）
+                const fetchNews = async (source = 'all') => {
+                    loading.value.news = true;
+                    try {
+                        const limit = 100;
+                        let url = `${API_BASE}/news?limit=${limit}`;
+                        if (source !== 'all') {
+                            url += `&source=${encodeURIComponent(source)}`;
+                        }
+                        const res = await fetch(url);
+                        newsList.value = await res.json();
+                    } catch (error) {
+                        console.error('获取新闻数据失败:', error);
+                    } finally {
+                        loading.value.news = false;
+                    }
+                };
+                
+                // 加载更多新闻
+                const loadMoreNews = () => {
+                    if (!loading.value.news && hasMoreNews.value) {
+                        fetchNews(currentPage.value + 1);
+                    }
+                };
+                
+                // 获取 AI 洞察
+                const fetchInsights = async () => {
+                    loading.value.insights = true;
+                    try {
+                        // 获取最新的 10 条洞察数据，按时间倒序排序
+                        const res = await fetch(`${API_BASE}/insights?limit=10&order=desc`);
+                        const data = await res.json();
+                        // 确保数据按 created_at 倒序排序
+                        insights.value = Array.isArray(data) ? data.sort((a, b) => 
+                            new Date(b.created_at) - new Date(a.created_at)
+                        ) : [];
+                    } catch (error) {
+                        console.error('获取洞察数据失败:', error);
+                        ElMessage.error('AI 洞察加载失败');
+                    } finally {
+                        loading.value.insights = false;
+                    }
+                };
+                
+                // 获取知识图谱
+                const fetchGraph = async () => {
+                    loading.value.graph = true;
+                    try {
+                        const res = await fetch(`${API_BASE}/graph`);
+                        const data = await res.json();
+                        graphData.value = {
+                            nodes: data.nodes || [],
+                            links: data.links || []
+                        };
+                        graphStats.value = {
+                            nodes: data.stats?.total_nodes || 0,
+                            edges: data.stats?.total_edges || 0
+                        };
+                        
+                        await nextTick();
+                        initChart();
+                    } catch (error) {
+                        console.error('获取图谱数据失败:', error);
+                        ElMessage.warning('图谱数据加载中');
+                    } finally {
+                        loading.value.graph = false;
+                    }
+                };
+                
+                // 切换布局
+                const toggleGraphLayout = (layout) => {
+                    if (!chartInstance) return;
+                    
+                    const option = chartInstance.getOption();
+                    option.series[0].layout = layout;
+                    chartInstance.setOption(option);
+                };
+                
+                // 高亮热门股票
+                const highlightHotStocks = () => {
+                    if (!chartInstance) return;
+                    
+                    const option = chartInstance.getOption();
+                    // 重置所有节点大小
+                    option.series[0].data.forEach(node => {
+                        if (node.data?.change_percent !== undefined) {
+                            node.symbolSize = 20 + Math.abs(node.data.change_percent) * 2;
+                        } else {
+                            node.symbolSize = 10;
+                        }
+                    });
+                    chartInstance.setOption(option);
+                };
+                
+                // 刷新所有数据
+                const refreshAll = async () => {
+                    refreshing.value = true;
+                    await Promise.all([
+                        fetchStats(),
+                        fetchMarketData(),
+                        fetchNews(),
+                        fetchInsights(),
+                        fetchGraph()
+                    ]);
+                    refreshing.value = false;
+                    ElMessage.success('数据已更新');
+                };
+                
+                // 显示新闻详情
+                const showNewsDetail = (row) => {
+                    const sentimentColors = {
+                        '积极': '#10b981',
+                        '消极': '#ef4444',
+                        '中性': '#f59e0b'
+                    };
+                    const sentimentColor = sentimentColors[row.sentiment] || '#6b7280';
+                    
+                    ElMessageBox.alert(`
+                        <div style="text-align: left; line-height: 1.8;">
+                            <div style="margin-bottom: 16px;">
+                                <span style="background: ${sentimentColor}; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px;">
+                                    ${row.sentiment}
+                                </span>
+                            </div>
+                            <h3 style="margin-bottom: 16px; color: #1a202c; font-size: 18px;">${row.title}</h3>
+                            <div style="display: flex; gap: 16px; margin-bottom: 16px; color: #718096; font-size: 14px;">
+                                <div>📰 来源：<strong>${row.source}</strong></div>
+                                <div>🕒 时间：<strong>${formatTime(row.published_at)}</strong></div>
+                            </div>
+                            <div style="background: #f7fafc; padding: 16px; border-radius: 8px; border-left: 4px solid #667eea; margin-bottom: 16px;">
+                                ${row.content || '暂无详细内容'}
+                            </div>
+                            ${row.url ? `<a href="${row.url}" target="_blank" style="display: inline-block; padding: 8px 16px; background: #667eea; color: white; text-decoration: none; border-radius: 4px;">查看原文 →</a>` : ''}
+                        </div>
+                    `, '📰 新闻详情', {
+                        dangerouslyUseHTMLString: true,
+                        confirmButtonText: '关闭',
+                        customClass: 'news-detail-dialog'
+                    });
+                };
+                
+                // 格式化价格
+                const formatPrice = (price) => {
+                    return price ? price.toFixed(2) : '0.00';
+                };
+                
+                // 格式化成交量
+                const formatVolume = (volume) => {
+                    if (!volume) return '0';
+                    if (volume >= 1000000) {
+                        return (volume / 1000000).toFixed(1) + 'M';
+                    }
+                    if (volume >= 1000) {
+                        return (volume / 1000).toFixed(1) + 'K';
+                    }
+                    return volume.toString();
+                };
+                
+                // 格式化时间
+                const formatTime = (timestamp) => {
+                    if (!timestamp) return '实时更新';
+                    const date = new Date(timestamp);
+                    return date.toLocaleString('zh-CN', {
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                };
+                
+                // 获取情感标签类型
+                const getSentimentTag = (label) => {
+                    if (label === 'positive') return 'success';
+                    if (label === 'negative') return 'danger';
+                    return 'warning';
+                };
+                
+                // 获取情感标签文字
+                const getSentimentLabel = (label) => {
+                    if (label === 'positive') return '积极';
+                    if (label === 'negative') return '消极';
+                    return '中性';
+                };
+                
+                // 获取情感样式类
+                const getSentimentClass = (type) => {
+                    if (type === 'sentiment_correlation') return 'sentiment-positive';
+                    if (type === 'news_alert') return 'sentiment-negative';
+                    return 'sentiment-neutral';
+                };
+                
+                // 获取分析类型标签
+                const getAnalysisTypeLabel = (type) => {
+                    if (type === 'sentiment_correlation') return '情感关联';
+                    if (type === 'market_summary') return '市场总结';
+                    if (type === 'news_alert') return '新闻提醒';
+                    return type;
+                };
+
+                // 过滤后的新闻列表
+                const filteredNewsList = computed(() => {
+                    if (newsSource.value === 'all') {
+                        return newsList.value;
+                    }
+                    // 模糊匹配来源
+                    return newsList.value.filter(item => {
+                        if (!item.source || typeof item.source !== 'string') return false;
+                        const source = item.source.toLowerCase();
+                        const target = newsSource.value.toLowerCase();
+                        return source.includes(target);
+                    });
+                });
+
+                // 新闻来源标签改变
+                const handleNewsSourceChange = (tabName) => {
+                    newsSource.value = tabName;
+                    console.log('切换到新闻来源:', newsSource.value);
+                    fetchNews(newsSource.value);
+                };
+
+                // 获取来源标签类型
+                const getSourceTagType = (source) => {
+                    if (!source || typeof source !== 'string') return '';
+                    const sourceLower = source.toLowerCase();
+                    if (sourceLower.includes('finnhub')) return 'primary';
+                    if (sourceLower.includes('twitter') || sourceLower.includes('x.com')) return 'info';
+                    if (sourceLower.includes('央视') || sourceLower.includes('cctv')) return 'danger';
+                    if (sourceLower.includes('github')) return 'success';
+                    if (sourceLower.includes('machine')) return 'warning';
+                    return '';
+                };
+
+                // 初始化
+                onMounted(() => {
+                    refreshAll();
+                    // 每 5 分钟自动刷新
+                    setInterval(refreshAll, 5 * 60 * 1000);
+                });
+                
+                // 显示新闻详情 - 直接打开链接或显示提示
+                return {
+                    stats,
+                    graphStats,
+                    marketData,
+                    newsList,
+                    filteredNewsList,
+                    insights,
+                    marketType,
+                    loading,
+                    refreshing,
+                    refreshAll,
+                    fetchMarketData,
+                    formatPrice,
+                    formatVolume,
+                    formatTime,
+                    getSentimentTag,
+                    getSentimentLabel,
+                    getSentimentClass,
+                    getAnalysisTypeLabel,
+                    getSourceTagType,
+                    toggleGraphLayout,
+                    highlightHotStocks,
+                    showNewsDetail,
+                    showInsightDetail,
+                    handleNewsSourceChange,
+                    newsSource
+                };
+            }
+        });
+        
+        // 注册图标组件
+        app.component('Refresh', Refresh);
+        
+        // 使用 Element Plus 并挂载
+        app.use(ElementPlus).mount('#app');
+    </script>
+</body>
+</html>

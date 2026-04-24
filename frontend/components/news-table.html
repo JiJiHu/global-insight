@@ -1,0 +1,113 @@
+<!-- 新闻列表组件 -->
+<template id="news-table-component">
+  <div class="news-table-container">
+    <el-table :data="newsList" stripe style="width: 100%" :max-height="400" empty-text="暂无新闻数据">
+      <el-table-column label="新闻标题" min-width="300">
+        <template #default="{ row }">
+          <el-link type="primary" @click="showNewsDetail(row)">{{ row.title }}</el-link>
+        </template>
+      </el-table-column>
+      <el-table-column prop="source" label="来源" width="150">
+        <template #default="{ row }">
+          <el-tag size="small" :type="getSourceTagType(row.source)">{{ row.source }}</el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column label="情感" width="100">
+        <template #default="{ row }">
+          <el-tag :type="getSentimentTag(row.sentiment_label)" size="small">
+            {{ getSentimentLabel(row.sentiment_label) }}
+          </el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column label="时间" width="180">
+        <template #default="{ row }">
+          {{ formatTime(row.published_at) }}
+        </template>
+      </el-table-column>
+    </el-table>
+    
+    <!-- 加载更多按钮 -->
+    <div style="text-align: center; margin-top: 16px;" v-if="newsList.length > 0">
+      <el-button @click="loadMore" type="primary" plain :loading="loading" :disabled="!hasMore">
+        {{ hasMore ? "加载更多" : "没有更多了" }}
+      </el-button>
+    </div>
+  </div>
+</template>
+
+<script>
+// 新闻表格组件
+const NewsTableComponent = {
+  template: '#news-table-component',
+  props: {
+    newsList: Array,
+    loading: Boolean,
+    hasMore: Boolean
+  },
+  emits: ['load-more', 'show-detail'],
+  setup(props, { emit }) {
+    const loadMore = () => {
+      emit('load-more');
+    };
+    
+    const showNewsDetail = (row) => {
+      emit('show-detail', row);
+    };
+    
+    const getSourceTagType = (source) => {
+      const types = {
+        'Finnhub': '',
+        'Twitter': 'warning',
+        '中国新闻网财经': 'success',
+        'Bloomberg': 'primary',
+        'CNBC': 'primary',
+        'Reuters': 'primary',
+        'GitHub': 'info'
+      };
+      for (const [key, type] of Object.entries(types)) {
+        if (source.includes(key)) return type;
+      }
+      return '';
+    };
+    
+    const getSentimentLabel = (sentiment) => {
+      const labels = {
+        'positive': '积极',
+        'negative': '消极',
+        'neutral': '中性'
+      };
+      return labels[sentiment] || sentiment;
+    };
+    
+    const getSentimentTag = (sentiment) => {
+      const types = {
+        'positive': 'success',
+        'negative': 'danger',
+        'neutral': 'info'
+      };
+      return types[sentiment] || '';
+    };
+    
+    const formatTime = (timeStr) => {
+      if (!timeStr) return '';
+      const date = new Date(timeStr);
+      return date.toLocaleString('zh-CN');
+    };
+    
+    return {
+      loadMore,
+      showNewsDetail,
+      getSourceTagType,
+      getSentimentLabel,
+      getSentimentTag,
+      formatTime
+    };
+  }
+};
+</script>
+
+<style scoped>
+.news-table-container {
+  margin-top: 12px;
+}
+</style>
