@@ -1,12 +1,7 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "frontend/**",
-      "use": "@vercel/static"
-    }
-  ],
-  "outputDirectory": "frontend",
+  "buildCommand": "cp -r frontend/* .",
+  "outputDirectory": ".",
   "routes": [
     {
       "src": "/api/v1/(.*)",
