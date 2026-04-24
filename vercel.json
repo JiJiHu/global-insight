@@ -2,10 +2,11 @@
   "version": 2,
   "builds": [
     {
-      "src": "frontend/index.html",
+      "src": "frontend/**",
       "use": "@vercel/static"
     }
   ],
+  "outputDirectory": "frontend",
   "routes": [
     {
       "src": "/api/v1/(.*)",
@@ -17,7 +18,7 @@
     },
     {
       "src": "/(.*)",
-      "dest": "frontend/$1"
+      "dest": "/$1"
     }
   ]
 }
