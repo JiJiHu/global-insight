@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "cp -r frontend/* .",
+  "buildCommand": "ls -la && cp -r frontend/* .",
   "outputDirectory": ".",
   "routes": [
     {
